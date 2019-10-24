@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Example of processing messages on an SQS queue with Lambda
+
+
+Resources:
+
+  nonnoEventProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: nonnoEventProcessor.handler
+      Runtime: python3.6
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSNSFullAccess
+      Events:
+        nonnoSqsEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt nonnoSqsQueue.Arn
+            BatchSize: 10
+
+  checkFreq:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: checkFreq.handler
+      Runtime: python3.6
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSNSFullAccess
+      Events:
+        freqEvent:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopicFreq
+
+  nonnoSqsQueue:
+    Type: AWS::SQS::Queue
+
+  nonnoSensorDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: sensor_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: sensor_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  UserDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: sensor_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: sensor_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  SNSTopicFreq:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint: "smvfal@gmail.com"
+        Protocol: email
+#     - Endpoint: CheckFreqFunction.arn
+#       Protocol: lambda
+
+
+#Outputs:
+#  nonnoEventProcessor:
+#    Description: "event processor function arn"
+#    Value: !GetAtt nonnoEventProcessor.arn
+#  nonnoEventFunctionIamRole:
+#    Description: "Implicit IAM Role created for event processor function"
+#    Value: !GetAtt nonnoEventProcessorRole.Arn
