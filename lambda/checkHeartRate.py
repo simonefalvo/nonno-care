@@ -1,5 +1,6 @@
 import time
 import boto3
+import os
 
 
 def handler(event, context):
@@ -16,7 +17,7 @@ def handler(event, context):
 
         # Get the service resource.
         dynamodb = boto3.resource('dynamodb')
-        table = dynamodb.Table('nonno-stack-UserDataTable-RMJMKMKYK11F')
+        table = dynamodb.Table(os.environ['USER_DATA_TABLE'])
 
         response = table.get_item(
             Key={

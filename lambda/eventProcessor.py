@@ -1,5 +1,6 @@
 import time
 import boto3
+import os
 
 
 MAX_FREQ = 100
@@ -23,7 +24,7 @@ def handler(event, context):
         # Get the service resource.
         dynamodb = boto3.resource('dynamodb')
 
-        table = dynamodb.Table('nonno-stack-SensorDataTable-1HCL4T0PRUMEG')
+        table = dynamodb.Table(os.environ['SENSOR_DATA_TABLE'])
 
         table.put_item(
             Item={
@@ -41,7 +42,7 @@ def handler(event, context):
 
             # Publish a simple message to the specified SNS topic
             response = sns.publish(
-                TopicArn='arn:aws:sns:eu-west-3:043090642581:nonno-stack-SNSTopicHeartRate-19BJCJ8NNLJ1R',
+                TopicArn=os.environ['SNS_TOPIC_HEARTRATE'],
                 Message='Hello World!',
                 MessageAttributes={
                     'sensor_id': {

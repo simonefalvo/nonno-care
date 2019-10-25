@@ -11,6 +11,10 @@ Resources:
       CodeUri: lambda/
       Handler: eventProcessor.handler
       Runtime: python3.6
+      Environment:
+        Variables:
+          SENSOR_DATA_TABLE: !Ref SensorDataTable
+          SNS_TOPIC_HEARTRATE: !Ref SNSTopicHeartRate
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
@@ -27,6 +31,9 @@ Resources:
       CodeUri: lambda/
       Handler: checkHeartRate.handler
       Runtime: python3.6
+      Environment:
+        Variables:
+          USER_DATA_TABLE: !Ref UserDataTable
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
@@ -78,10 +85,10 @@ Resources:
 #        Protocol: email
 
 
-#Outputs:
-#  eventProcessor:
-#    Description: "event processor function arn"
-#    Value: !GetAtt eventProcessor.arn
+Outputs:
+  SQSQueue:
+    Description: "SQS events queue URL"
+    Value: !Ref SQSQueue
 #  nonnoEventFunctionIamRole:
 #    Description: "Implicit IAM Role created for event processor function"
 #    Value: !GetAtt nonnoEventProcessorRole.Arn
