@@ -5,11 +5,11 @@ Description: Example of processing messages on an SQS queue with Lambda
 
 Resources:
 
-  nonnoEventProcessor:
+  eventProcessor:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
-      Handler: nonnoEventProcessor.handler
+      Handler: eventProcessor.handler
       Runtime: python3.6
       Policies:
         - AmazonDynamoDBFullAccess
@@ -18,14 +18,14 @@ Resources:
         nonnoSqsEvent:
           Type: SQS
           Properties:
-            Queue: !GetAtt nonnoSqsQueue.Arn
+            Queue: !GetAtt SQSQueue.Arn
             BatchSize: 10
 
-  checkFreq:
+  checkHeartRate:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
-      Handler: checkFreq.handler
+      Handler: checkHeartRate.handler
       Runtime: python3.6
       Policies:
         - AmazonDynamoDBFullAccess
@@ -35,12 +35,12 @@ Resources:
           Type: SNS
           Properties:
             Topic:
-              Ref: SNSTopicFreq
+              Ref: SNSTopicHeartRate
 
-  nonnoSqsQueue:
+  SQSQueue:
     Type: AWS::SQS::Queue
 
-  nonnoSensorDataTable:
+  SensorDataTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -70,20 +70,18 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-  SNSTopicFreq:
+  SNSTopicHeartRate:
     Type: AWS::SNS::Topic
-    Properties:
-      Subscription:
-      - Endpoint: "smvfal@gmail.com"
-        Protocol: email
-#     - Endpoint: CheckFreqFunction.arn
-#       Protocol: lambda
+#    Properties:
+#      Subscription:
+#      - Endpoint: "smvfal@gmail.com"
+#        Protocol: email
 
 
 #Outputs:
-#  nonnoEventProcessor:
+#  eventProcessor:
 #    Description: "event processor function arn"
-#    Value: !GetAtt nonnoEventProcessor.arn
+#    Value: !GetAtt eventProcessor.arn
 #  nonnoEventFunctionIamRole:
 #    Description: "Implicit IAM Role created for event processor function"
 #    Value: !GetAtt nonnoEventProcessorRole.Arn

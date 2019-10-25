@@ -13,12 +13,15 @@ def main():
     sensor_id = 3
     register_user(sensor_id)
 
+    counter = 0
     while True:
+        counter += 1
         latitude = 41.858362
         longitude = 12.635893
         heart_rate = 112
 
         send_message(sensor_id, latitude, longitude, heart_rate)
+        print("Sent messages: ", counter)
 
         time.sleep(PERIOD)
 
@@ -53,7 +56,7 @@ def send_message(sensor_id, latitude, longitude, heart_rate):
 
     # Create SQS client
     sqs = boto3.client('sqs')
-    queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-nonnoSqsQueue-WXX8HD7VM1G6"
+    queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1UWUNLPO81TNZ"
 
     # Send message to SQS queue
     response = sqs.send_message(
