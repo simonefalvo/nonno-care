@@ -11,7 +11,7 @@ description
 ## Deployment
 Package the local artifacts (local paths) that the AWS CloudFormation template references
 ```
-$ aws cloudformation package --output-template packaged.yaml --s3-bucket nonno-care
+$ aws cloudformation package --template-file template.yaml --output-template packaged.yaml --s3-bucket nonno-care
 ```
 
 Deploy the specified AWS CloudFormation template
