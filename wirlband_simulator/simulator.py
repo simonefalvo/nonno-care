@@ -7,10 +7,13 @@ PERIOD = 120  # Sample period
 AVG_HRATE = 75
 VAR_HRATE = 15
 
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1IFL6A226TIJK"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-57S7JPDYJ74C"
+
 
 def main():
 
-    sensor_id = 3
+    sensor_id = 4
     register_user(sensor_id)
 
     counter = 0
@@ -18,7 +21,7 @@ def main():
         counter += 1
         latitude = 41.858362
         longitude = 12.635893
-        heart_rate = 112
+        heart_rate = 106
 
         send_message(sensor_id, latitude, longitude, heart_rate)
         print("Sent messages: ", counter)
@@ -37,7 +40,7 @@ def register_user(sensor_id):
 
     # Store user data
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('nonno-stack-UserDataTable-RMJMKMKYK11F')
+    table = dynamodb.Table(USER_DATA_TABLE)
     response = table.put_item(
         Item={
             'sensor_id': str(sensor_id),
@@ -56,11 +59,10 @@ def send_message(sensor_id, latitude, longitude, heart_rate):
 
     # Create SQS client
     sqs = boto3.client('sqs')
-    queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1UWUNLPO81TNZ"
 
     # Send message to SQS queue
     response = sqs.send_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         MessageAttributes={
             'sensor_id': {
                 'DataType': 'Number',

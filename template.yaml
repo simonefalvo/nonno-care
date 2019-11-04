@@ -44,8 +44,27 @@ Resources:
             Topic:
               Ref: SNSTopicHeartRate
 
+  apiServer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: apiServer.handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          SENSOR_DATA_TABLE: !Ref SensorDataTable
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        HttpPost:
+          Type: Api
+          Properties:
+            Path: '/DynamoDBManager'
+            Method: post
+
   SQSQueue:
     Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: 20  # enable long polling
 
   SensorDataTable:
     Type: AWS::DynamoDB::Table
@@ -84,11 +103,22 @@ Resources:
 #      - Endpoint: "smvfal@gmail.com"
 #        Protocol: email
 
+  ApiBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
 
 Outputs:
   SQSQueue:
     Description: "SQS events queue URL"
     Value: !Ref SQSQueue
+  ApiGatewayUrl:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/DynamoDBManager/"
 #  nonnoEventFunctionIamRole:
 #    Description: "Implicit IAM Role created for event processor function"
 #    Value: !GetAtt nonnoEventProcessorRole.Arn
