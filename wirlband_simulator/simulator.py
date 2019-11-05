@@ -2,27 +2,23 @@ import boto3
 import time
 import random
 
-
-PERIOD = 120  # Sample period
+PERIOD = 12  # Sample period
 AVG_HRATE = 75
 VAR_HRATE = 15
 
 
 def main():
-
-    sensor_id = 3
+    sensor_id = 5
     register_user(sensor_id)
-
     counter = 0
     while True:
         counter += 1
         latitude = 41.858362
         longitude = 12.635893
         heart_rate = 112
-
-        send_message(sensor_id, latitude, longitude, heart_rate)
-        print("Sent messages: ", counter)
-
+        # add if random data send fall data
+        fall = fall_data()
+        send_message(sensor_id, latitude, longitude, heart_rate, fall)
         time.sleep(PERIOD)
 
 
@@ -37,7 +33,17 @@ def register_user(sensor_id):
 
     # Store user data
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('nonno-stack-UserDataTable-RMJMKMKYK11F')
+    dynamodb_client = boto3.client('dynamodb')
+    print(dynamodb)
+    table = dynamodb.Table('nonno-stack-UserDataTable-H33XU85CDKXD')
+    #T0GLBM9HAHPQ virginia
+    #VU3YVE27MISR  parigi
+    print(table)
+
+    response = dynamodb_client.describe_table(TableName='nonno-stack-UserDataTable-H33XU85CDKXD')
+
+    print(response)
+
     response = table.put_item(
         Item={
             'sensor_id': str(sensor_id),
@@ -50,13 +56,22 @@ def register_user(sensor_id):
     print(response)
 
 
-def send_message(sensor_id, latitude, longitude, heart_rate):
+def fall_data():
+    file_name = "UMAFall_Subject_01_ADL_Aplausing_1_2017-04-14_23-38-23.csv"
+    #file_name = "UMAFall_Subject_04_Fall_lateralFall_3_2016-06-13_13-18-13.csv"
+    with open(file_name) as f:
+        s = f.read() + '\n'
+    # print(s)
+    return s
+
+
+def send_message(sensor_id, latitude, longitude, heart_rate, fall):
 
     timestamp = time.time()
 
     # Create SQS client
     sqs = boto3.client('sqs')
-    queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1UWUNLPO81TNZ"
+    queue_url = "https://sqs.us-east-1.amazonaws.com/043090642581/nonno-stack-SQSQueue-1RUZP01BHLGVZ"
 
     # Send message to SQS queue
     response = sqs.send_message(
@@ -81,6 +96,10 @@ def send_message(sensor_id, latitude, longitude, heart_rate):
             'heart_rate': {
                 'DataType': 'Number',
                 'StringValue': str(heart_rate)
+            },
+            'fall': {
+                'DataType': 'String',
+                'StringValue': fall
             }
         },
         MessageBody=(
