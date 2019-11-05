@@ -2,13 +2,18 @@ import boto3
 import time
 import random
 
-PERIOD = 12  # Sample period
+
+PERIOD = 120  # Sample period
 AVG_HRATE = 75
 VAR_HRATE = 15
 
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1IFL6A226TIJK"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-57S7JPDYJ74C"
+
 
 def main():
-    sensor_id = 5
+
+    sensor_id = 4
     register_user(sensor_id)
     counter = 0
     while True:
@@ -33,17 +38,7 @@ def register_user(sensor_id):
 
     # Store user data
     dynamodb = boto3.resource('dynamodb')
-    dynamodb_client = boto3.client('dynamodb')
-    print(dynamodb)
-    table = dynamodb.Table('nonno-stack-UserDataTable-H33XU85CDKXD')
-    #T0GLBM9HAHPQ virginia
-    #VU3YVE27MISR  parigi
-    print(table)
-
-    response = dynamodb_client.describe_table(TableName='nonno-stack-UserDataTable-H33XU85CDKXD')
-
-    print(response)
-
+    table = dynamodb.Table(USER_DATA_TABLE)
     response = table.put_item(
         Item={
             'sensor_id': str(sensor_id),
@@ -71,11 +66,10 @@ def send_message(sensor_id, latitude, longitude, heart_rate, fall):
 
     # Create SQS client
     sqs = boto3.client('sqs')
-    queue_url = "https://sqs.us-east-1.amazonaws.com/043090642581/nonno-stack-SQSQueue-1RUZP01BHLGVZ"
 
     # Send message to SQS queue
     response = sqs.send_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         MessageAttributes={
             'sensor_id': {
                 'DataType': 'Number',
