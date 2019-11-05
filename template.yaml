@@ -15,6 +15,7 @@ Resources:
         Variables:
           SENSOR_DATA_TABLE: !Ref SensorDataTable
           SNS_TOPIC_HEARTRATE: !Ref SNSTopicHeartRate
+          SNS_TOPIC_FALL_DETECTION: !Ref SNSTopicFall
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
@@ -43,6 +44,25 @@ Resources:
           Properties:
             Topic:
               Ref: SNSTopicHeartRate
+
+  checkFall:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: checkFall.handler
+      Runtime: python3.6
+      Policies:
+        - AmazonSNSFullAccess
+        - AmazonSageMakerFullAccess
+       # - sagemaker:InvokeEndpoint
+
+      Events:
+        freqEvent:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopicFall
+
 
   SQSQueue:
     Type: AWS::SQS::Queue
@@ -79,6 +99,9 @@ Resources:
 
   SNSTopicHeartRate:
     Type: AWS::SNS::Topic
+  SNSTopicFall:
+    Type: AWS::SNS::Topic
+
 #    Properties:
 #      Subscription:
 #      - Endpoint: "smvfal@gmail.com"

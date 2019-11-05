@@ -20,6 +20,7 @@ def handler(event, context):
         latitude = attributes["latitude"]["stringValue"]
         longitude = attributes["longitude"]["stringValue"]
         heart_rate = attributes["heart_rate"]["stringValue"]
+        fall_data = attributes["fall"]["stringValue"]
 
         # Get the service resource.
         dynamodb = boto3.resource('dynamodb')
@@ -32,9 +33,30 @@ def handler(event, context):
                 'timestamp': timestamp,
                 'latitude': latitude,
                 'longitude': longitude,
-                'heart_rate': heart_rate
+                'heart_rate': heart_rate,
+                'fall': fall_data
             }
         )
+
+        if len(fall_data) > 0:
+            # Create an SNS client
+            sns = boto3.client('sns')
+
+            # Publish a simple message to the specified SNS topic
+            response = sns.publish(
+                TopicArn=os.environ['SNS_TOPIC_FALL_DETECTION'],
+                Message='Fall Detection Data',
+                MessageAttributes={
+                    'fall_data': {
+                        'DataType': 'String',
+                        'StringValue': fall_data
+                    },
+                    'timestamp': {
+                        'DataType': 'String',
+                        'StringValue': timestamp
+                    }
+                }
+            )
 
         if int(heart_rate) > MAX_FREQ:
             # Create an SNS client
