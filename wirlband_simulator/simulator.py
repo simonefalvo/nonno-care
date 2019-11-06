@@ -7,8 +7,8 @@ PERIOD = 120  # Sample period
 AVG_HRATE = 75
 VAR_HRATE = 15
 
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1IFL6A226TIJK"
-USER_DATA_TABLE = "nonno-stack-UserDataTable-57S7JPDYJ74C"
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1SUBX44OS102I"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-10EBX7X796IPP"
 
 
 def main():
@@ -35,6 +35,7 @@ def register_user(sensor_id):
     safety_latitude = random.uniform(-90, 90)
     safety_longitude = random.uniform(-180, 180)
     # safety_radius = random.uniform(10, 15)
+    email = "smvfal@gmail.com"
 
     # Store user data
     dynamodb = boto3.resource('dynamodb')
@@ -45,7 +46,8 @@ def register_user(sensor_id):
             'safety_latitude': str(safety_latitude),
             'safety_longitude': str(safety_longitude),
             'avg_hrate': str(avg_hrate),
-            'var_hrate': str(var_hrate)
+            'var_hrate': str(var_hrate),
+            'email': email
         }
     )
     print(response)

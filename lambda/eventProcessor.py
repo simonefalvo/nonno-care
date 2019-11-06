@@ -39,56 +39,49 @@ def handler(event, context):
         )
 
         if len(fall_data) > 0:
-            # Create an SNS client
-            sns = boto3.client('sns')
-
-            # Publish a simple message to the specified SNS topic
-            response = sns.publish(
-                TopicArn=os.environ['SNS_TOPIC_FALL_DETECTION'],
-                Message='Fall Detection Data',
-                MessageAttributes={
-                    'fall_data': {
-                        'DataType': 'String',
-                        'StringValue': fall_data
-                    },
-                    'timestamp': {
-                        'DataType': 'String',
-                        'StringValue': timestamp
-                    }
-                }
-            )
+            message = 'Possibile caduta',
+            topic = os.environ['SNS_TOPIC_FALL_DETECTION'],
+            print(publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data))
 
         if int(heart_rate) > MAX_FREQ:
-            # Create an SNS client
-            sns = boto3.client('sns')
+            message = "Possibile anomalia cardiaca"
+            topic = os.environ['SNS_TOPIC_HEARTRATE']
+            print(publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate))
 
-            # Publish a simple message to the specified SNS topic
-            response = sns.publish(
-                TopicArn=os.environ['SNS_TOPIC_HEARTRATE'],
-                Message='Hello World!',
-                MessageAttributes={
-                    'sensor_id': {
-                        'DataType': 'Number',
-                        'StringValue': sensor_id
-                    },
-                    'timestamp': {
-                        'DataType': 'String',
-                        'StringValue': timestamp
-                    },
-                    'latitude': {
-                        'DataType': 'Number.float',
-                        'StringValue': latitude
-                    },
-                    'longitude': {
-                        'DataType': 'Number.float',
-                        'StringValue': longitude
-                    },
-                    'heart_rate': {
-                        'DataType': 'Number',
-                        'StringValue': heart_rate
-                    }
-                }
-            )
 
-            # Print out the response
-            print(response)
+# TODO: creare un layer
+def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data):
+    # Create an SNS client
+    sns = boto3.client('sns')
+
+    # Publish a simple message to the specified SNS topic
+    return sns.publish(
+        TopicArn=topic,
+        Message=message,
+        MessageAttributes={
+            'sensor_id': {
+                'DataType': 'Number',
+                'StringValue': sensor_id
+            },
+            'timestamp': {
+                'DataType': 'String',
+                'StringValue': timestamp
+            },
+            'latitude': {
+                'DataType': 'Number.float',
+                'StringValue': latitude
+            },
+            'longitude': {
+                'DataType': 'Number.float',
+                'StringValue': longitude
+            },
+            'heart_rate': {
+                'DataType': 'Number',
+                'StringValue': heart_rate
+            },
+            'fall_data': {
+                'DataType': 'String',
+                'StringValue': fall_data
+            }
+        }
+    )
