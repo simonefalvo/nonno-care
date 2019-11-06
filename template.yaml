@@ -14,6 +14,14 @@ Resources:
       LicenseInfo: ''
       RetentionPolicy: Delete
 
+  sagemakerEndpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointConfigName: xgboost-fall-v1
+      EndpointName: fall-model-endpoint
+
+
+
   eventProcessor:
     Type: AWS::Serverless::Function
     Properties:
@@ -78,8 +86,8 @@ Resources:
       Handler: checkFall.handler
       Runtime: python3.6
       Layers:
-        - !Ref pandasLayer
         - arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
+        - !Ref pandasLayer
       Policies:
         - AmazonSNSFullAccess
         - AmazonSageMakerFullAccess
