@@ -2,8 +2,17 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Example of processing messages on an SQS queue with Lambda
 
-
 Resources:
+  pandasLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: PandasLayer
+      Description: Layer of Pandas 0.25
+      ContentUri: ./layers/my-Python36-Pandas23.zip
+      CompatibleRuntimes:
+        - python3.6
+      LicenseInfo: ''
+      RetentionPolicy: Delete
 
   eventProcessor:
     Type: AWS::Serverless::Function
@@ -68,6 +77,9 @@ Resources:
       CodeUri: lambda/
       Handler: checkFall.handler
       Runtime: python3.6
+      Layers:
+        - !Ref pandasLayer
+        - arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
       Policies:
         - AmazonSNSFullAccess
         - AmazonSageMakerFullAccess
