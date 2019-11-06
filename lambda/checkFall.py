@@ -1,3 +1,4 @@
+import os
 import boto3
 import json
 from io import StringIO
@@ -26,6 +27,11 @@ z_gir_mean = -1.55567
 def handler(event, context):
     for record in event['Records']:
         attributes = record["Sns"]["MessageAttributes"]
+        sensor_id = attributes["sensor_id"]["Value"]
+        timestamp = attributes["timestamp"]["Value"]
+        latitude = attributes["latitude"]["Value"]
+        longitude = attributes["longitude"]["Value"]
+        heart_rate = int(attributes["heart_rate"]["Value"])
         fall_data = attributes["fall_data"]["Value"]
 
         data_vector = read_message(fall_data)
@@ -71,6 +77,38 @@ def handler(event, context):
         if result == 0:
             return "NO CADUTA"
         else:
+            # Create an SNS client
+            sns = boto3.client('sns')
+
+            # Publish a simple message to the specified SNS topic
+            response = sns.publish(
+                TopicArn=os.environ['SNS_TOPIC_NOTIFY'],
+                Message='Attenzione: caduta rilevata',
+                MessageAttributes={
+                    'sensor_id': {
+                        'DataType': 'Number',
+                        'StringValue': sensor_id
+                    },
+                    'timestamp': {
+                        'DataType': 'String',
+                        'StringValue': timestamp
+                    },
+                    'latitude': {
+                        'DataType': 'Number.float',
+                        'StringValue': latitude
+                    },
+                    'longitude': {
+                        'DataType': 'Number.float',
+                        'StringValue': longitude
+                    },
+                    'heart_rate': {
+                        'DataType': 'Number',
+                        'StringValue': heart_rate
+                    }
+                }
+            )
+            # Print out the response
+            print(response)
             return "CADUTA"
 
 

@@ -90,6 +90,23 @@ Resources:
             Topic:
               Ref: SNSTopicFall
 
+  notify:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: notify.handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          USER_DATA_TABLE: !Ref UserDataTable
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Events:
+        freqEvent:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopicNotify
 
   SQSQueue:
     Type: AWS::SQS::Queue
@@ -128,13 +145,12 @@ Resources:
 
   SNSTopicHeartRate:
     Type: AWS::SNS::Topic
+
   SNSTopicFall:
     Type: AWS::SNS::Topic
 
-#    Properties:
-#      Subscription:
-#      - Endpoint: "smvfal@gmail.com"
-#        Protocol: email
+  SNSTopicNotify:
+    Type: AWS::SNS::Topic
 
   ApiBucket:
     Type: AWS::S3::Bucket
@@ -152,6 +168,3 @@ Outputs:
   ApiGatewayUrl:
     Description: "API Gateway endpoint URL for Prod stage"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/DynamoDBManager/"
-#  nonnoEventFunctionIamRole:
-#    Description: "Implicit IAM Role created for event processor function"
-#    Value: !GetAtt nonnoEventProcessorRole.Arn
