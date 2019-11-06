@@ -31,7 +31,7 @@ def handler(event, context):
         timestamp = attributes["timestamp"]["Value"]
         latitude = attributes["latitude"]["Value"]
         longitude = attributes["longitude"]["Value"]
-        heart_rate = int(attributes["heart_rate"]["Value"])
+        heart_rate = attributes["heart_rate"]["Value"]
         fall_data = attributes["fall_data"]["Value"]
 
         data_vector = read_message(fall_data)
