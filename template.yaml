@@ -8,11 +8,11 @@ Resources:
     Properties:
       LayerName: PandasLayer
       Description: Layer of Pandas 0.25
-      ContentUri: 's3://nonno-stack-apibucket-1jo9kycok6to8/layer_file/my-Python36-Pandas23.zip'
+      ContentUri: ./layers/my-Python36-Pandas23.zip
       CompatibleRuntimes:
         - python3.6
       LicenseInfo: ''
-      RetentionPolicy: Retain
+      RetentionPolicy: Delete
 
   eventProcessor:
     Type: AWS::Serverless::Function
@@ -71,8 +71,6 @@ Resources:
             Path: '/DynamoDBManager'
             Method: post
 
-
-
   checkFall:
     Type: AWS::Serverless::Function
     Properties:
@@ -81,10 +79,10 @@ Resources:
       Runtime: python3.6
       Layers:
         - !Ref pandasLayer
+        - arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
       Policies:
         - AmazonSNSFullAccess
         - AmazonSageMakerFullAccess
-       # - sagemaker:InvokeEndpoint
       Events:
         freqEvent:
           Type: SNS
