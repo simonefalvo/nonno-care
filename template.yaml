@@ -77,6 +77,9 @@ Resources:
       CodeUri: lambda/
       Handler: checkFall.handler
       Runtime: python3.6
+      Environment:
+        Variables:
+          SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
       Layers:
         - !Ref pandasLayer
         - arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2

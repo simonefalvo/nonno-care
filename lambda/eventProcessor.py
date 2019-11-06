@@ -39,8 +39,8 @@ def handler(event, context):
         )
 
         if len(fall_data) > 0:
-            message = 'Possibile caduta',
-            topic = os.environ['SNS_TOPIC_FALL_DETECTION'],
+            message = "Possibile caduta"
+            topic = os.environ['SNS_TOPIC_FALL_DETECTION']
             print(publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data))
 
         if int(heart_rate) > MAX_FREQ:
@@ -50,7 +50,8 @@ def handler(event, context):
 
 
 # TODO: creare un layer
-def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data):
+def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data="ND"):
+    print("Topic dentro la funzione:", topic)
     # Create an SNS client
     sns = boto3.client('sns')
 

@@ -54,8 +54,8 @@ def register_user(sensor_id):
 
 
 def fall_data():
-    file_name = "UMAFall_Subject_01_ADL_Aplausing_1_2017-04-14_23-38-23.csv"
-    #file_name = "UMAFall_Subject_04_Fall_lateralFall_3_2016-06-13_13-18-13.csv"
+    #file_name = "UMAFall_Subject_01_ADL_Aplausing_1_2017-04-14_23-38-23.csv"
+    file_name = "UMAFall_Subject_04_Fall_lateralFall_3_2016-06-13_13-18-13.csv"
     with open(file_name) as f:
         s = f.read() + '\n'
     # print(s)
