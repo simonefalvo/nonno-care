@@ -52,6 +52,7 @@ Resources:
       Environment:
         Variables:
           USER_DATA_TABLE: !Ref UserDataTable
+          SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess

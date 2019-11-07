@@ -32,3 +32,35 @@ def handler(event, context):
 
         if not avg_hrate - var_hrate <= heart_rate <= avg_hrate + var_hrate:
             print("WARNING: Abnormal Heartbeats")
+            # Create an SNS client
+            sns = boto3.client('sns')
+
+            # Publish a simple message to the specified SNS topic
+            response = sns.publish(
+                TopicArn=os.environ['SNS_TOPIC_NOTIFY'],
+                Message='Attenzione: anomalia cardiaca rilevata',
+                MessageAttributes={
+                    'sensor_id': {
+                        'DataType': 'Number',
+                        'StringValue': sensor_id
+                    },
+                    'timestamp': {
+                        'DataType': 'String',
+                        'StringValue': timestamp
+                    },
+                    'latitude': {
+                        'DataType': 'Number.float',
+                        'StringValue': latitude
+                    },
+                    'longitude': {
+                        'DataType': 'Number.float',
+                        'StringValue': longitude
+                    },
+                    'heart_rate': {
+                        'DataType': 'Number',
+                        'StringValue': str(heart_rate)
+                    }
+                }
+            )
+            # Print out the response
+            print(response)

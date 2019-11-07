@@ -7,8 +7,8 @@ PERIOD = 120  # Sample period
 AVG_HRATE = 75
 VAR_HRATE = 15
 
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1SUBX44OS102I"
-USER_DATA_TABLE = "nonno-stack-UserDataTable-10EBX7X796IPP"
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-M90LMZXIC5LU"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-VOA8OJ54MI73"
 
 
 def main():
