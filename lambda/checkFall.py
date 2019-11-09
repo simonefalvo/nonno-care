@@ -93,6 +93,10 @@ def handler(event, context):
                         'DataType': 'String',
                         'StringValue': timestamp
                     },
+                    'type': {
+                        'DataType': 'String',
+                        'StringValue': 'Caduta'
+                    },
                     'latitude': {
                         'DataType': 'Number.float',
                         'StringValue': latitude

@@ -1,7 +1,10 @@
 import os
+import smtplib
+import ssl
+
 import boto3
 from botocore.exceptions import ClientError
-import smtplib, ssl
+
 
 def handler(event, context):
     for record in event['Records']:
@@ -9,16 +12,31 @@ def handler(event, context):
         attributes = record["Sns"]["MessageAttributes"]
         sensor_id = attributes["sensor_id"]["Value"]
         timestamp = attributes["timestamp"]["Value"]
+        accident_type = attributes["type"]["Value"]
         latitude = attributes["latitude"]["Value"]
         longitude = attributes["longitude"]["Value"]
         heart_rate = int(attributes["heart_rate"]["Value"])
 
+        print(message)
+
+        # store accident data
+        table = boto3.resource('dynamodb').Table(os.environ['ACCIDENT_DATA_TABLE'])
+        table.put_item(
+            Item={
+                'sensor_id': sensor_id,
+                'timestamp': timestamp,
+                'type': accident_type,
+                'latitude': latitude,
+                'longitude': longitude,
+                'heart_rate': heart_rate,
+            }
+        )
+
+        # send email to subscribers
         email = get_subscribers(sensor_id)
         print("Email: ", email)
         send_smtp(email, message)
         #send_email(email, message)
-
-        print(message)
 
 
 def get_subscribers(sensor_id):

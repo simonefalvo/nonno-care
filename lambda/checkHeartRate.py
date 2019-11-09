@@ -48,6 +48,10 @@ def handler(event, context):
                         'DataType': 'String',
                         'StringValue': timestamp
                     },
+                    'type': {
+                        'DataType': 'String',
+                        'StringValue': 'Anomalia cardiaca'
+                    },
                     'latitude': {
                         'DataType': 'Number.float',
                         'StringValue': latitude
@@ -64,3 +68,4 @@ def handler(event, context):
             )
             # Print out the response
             print(response)
+
