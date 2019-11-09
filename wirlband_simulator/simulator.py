@@ -20,14 +20,18 @@ def main():
     fall_event_simulator.start()
 
     counter = 0
-    while True:
-        counter += 1
-        #latitude = 41.858362
-        #longitude = 12.635893
-        user.next_position()
+    try:
+        while True:
+            counter += 1
+            #latitude = 41.858362
+            #longitude = 12.635893
+            user.next_position()
 
-        send_message(user, "fall")
-        time.sleep(PERIOD)
+            send_message(user, "fall")
+            time.sleep(PERIOD)
+    except KeyboardInterrupt:
+        fall_event_simulator.join()
+        pass
 
 
 def register_user(user):
