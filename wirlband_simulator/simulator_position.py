@@ -81,6 +81,7 @@ def get_random_position(lat, long, my_seed, min_d, max_d):
 
 def main():
 
+    # get position: https://stevemorse.org/jcal/latlon.php
     print(get_random_position(41.85561, 12.62095, 123, 0, 0.5))
 
 

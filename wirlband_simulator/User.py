@@ -25,10 +25,10 @@ class User:
         return int(random.gauss(self.avg_hrate, self.var_hrate))
 
     def next_position(self):
-        latitude = user.current_latitude
-        longitude = user.current_longitude
+        latitude = self.current_latitude
+        longitude = self.current_longitude
         seed = None  # current system time
-        user.current_latitude, user.current_latitude = \
+        self.current_latitude, self.current_latitude = \
             pos_gen.get_random_position(latitude, longitude, seed, 0, 0.5)
 
     @property

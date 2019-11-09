@@ -1,29 +1,32 @@
 import boto3
 import time
 from wirlband_simulator.User import User
-
+from wirlband_simulator import AsynchronousEventThread
+import os
+from random import seed, random
 
 PERIOD = 120  # Sample period
-
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1IBQ7S8PZYCXK"
-USER_DATA_TABLE = "nonno-stack-UserDataTable-UZ0JB6NARKTZ"
-
+FALL_FILE_LIST = []
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-ABYXWCA9RHJV"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-TKN3VJBOE3T7"
 
 def main():
 
     sensor_id = 4
     user = User(sensor_id, "Pumero", "smvfal@gmail.com")
-
     register_user(user)
+
+    fall_event_simulator = AsynchronousEventThread.AsynchronusEventThread(user)
+    fall_event_simulator.start()
+
     counter = 0
     while True:
         counter += 1
         #latitude = 41.858362
         #longitude = 12.635893
         user.next_position()
-        # add if random data send fall data
-        fall = fall_data()
-        send_message(user, fall)
+
+        send_message(user, "fall")
         time.sleep(PERIOD)
 
 
@@ -44,9 +47,20 @@ def register_user(user):
     print(response)
 
 
-def fall_data():
+def list_file_fall():
+    files = []
+    path = "./fall_file/"
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if '.csv' in file:
+                files.append(os.path.join(r, file))
+    return files
+
+
+def fall_data(file_name):
     #file_name = "UMAFall_Subject_01_ADL_Aplausing_1_2017-04-14_23-38-23.csv"
-    file_name = "UMAFall_Subject_04_Fall_lateralFall_3_2016-06-13_13-18-13.csv"
+    # file_name = "UMAFall_Subject_04_Fall_lateralFall_3_2016-06-13_13-18-13.csv"
     with open(file_name) as f:
         s = f.read() + '\n'
     # print(s)
