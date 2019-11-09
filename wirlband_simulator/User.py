@@ -1,4 +1,5 @@
 import random
+import wirlband_simulator.simulator_position as pos_gen
 
 
 class User:
@@ -14,14 +15,21 @@ class User:
         self._var_hrate = User.VAR_HRATE
         self._safety_latitude = random.uniform(-90, 90)
         self._safety_longitude = random.uniform(-180, 180)
-        # safety_radius = random.uniform(10, 15)
+        self._current_latitude = self._safety_latitude
+        self._current_longitude = self._safety_longitude
+        # Todo: self._safety_radius = random.uniform(10, 15)
+        self._safety_radius = 0.5
         self._email = email
 
     def current_hrate(self):
         return int(random.gauss(self.avg_hrate, self.var_hrate))
 
-    def current_position(self):
-        pass
+    def next_position(self):
+        latitude = user.current_latitude
+        longitude = user.current_longitude
+        seed = None  # current system time
+        user.current_latitude, user.current_latitude = \
+            pos_gen.get_random_position(latitude, longitude, seed, 0, 0.5)
 
     @property
     def name(self):
@@ -48,8 +56,20 @@ class User:
         return self._safety_longitude
 
     @property
+    def current_latitude(self):
+        return self._current_latitude
+
+    @property
+    def current_longitude(self):
+        return self._current_longitude
+
+    @property
     def email(self):
         return self._email
+
+    @property
+    def safety_radius(self):
+        return self._safety_radius
 
     @name.setter
     def name(self, new_name):
@@ -63,7 +83,19 @@ class User:
     def safety_longitude(self, new_long):
         self._safety_longitude = new_long
 
+    @current_latitude.setter
+    def current_latitude(self, new_lat):
+        self._current_latitude = new_lat
+
+    @current_longitude.setter
+    def current_longitude(self, new_lat):
+        self._current_longitude = new_lat
+
 
 if __name__ == '__main__':
     user = User(1, "PUMA", "smvfal@gmail.com")
-    print(user.current_hrate())
+    for i in range(10):
+        user.next_position()
+        print("Heart rate:", user.current_hrate())
+        print("latitude:", user.current_latitude)
+        print("longitude:", user.current_longitude)

@@ -18,13 +18,12 @@ def main():
     counter = 0
     while True:
         counter += 1
-        latitude = 41.858362
-        longitude = 12.635893
-        heart_rate = user.current_hrate()
-        print("Heart rate:", heart_rate)
+        #latitude = 41.858362
+        #longitude = 12.635893
+        user.next_position()
         # add if random data send fall data
         fall = fall_data()
-        send_message(sensor_id, latitude, longitude, heart_rate, fall)
+        send_message(user, fall)
         time.sleep(PERIOD)
 
 
@@ -54,7 +53,7 @@ def fall_data():
     return s
 
 
-def send_message(sensor_id, latitude, longitude, heart_rate, fall):
+def send_message(user, fall):
 
     timestamp = time.time()
 
@@ -67,7 +66,7 @@ def send_message(sensor_id, latitude, longitude, heart_rate, fall):
         MessageAttributes={
             'sensor_id': {
                 'DataType': 'Number',
-                'StringValue': str(sensor_id)
+                'StringValue': str(user.sensor_id)
             },
             'timestamp': {
                 'DataType': 'String',
@@ -75,15 +74,15 @@ def send_message(sensor_id, latitude, longitude, heart_rate, fall):
             },
             'latitude': {
                 'DataType': 'Number.float',
-                'StringValue': str(latitude)
+                'StringValue': str(user.current_latitude)
             },
             'longitude': {
                 'DataType': 'Number.float',
-                'StringValue': str(longitude)
+                'StringValue': str(user.current_longitude)
             },
             'heart_rate': {
                 'DataType': 'Number',
-                'StringValue': str(heart_rate)
+                'StringValue': str(user.current_hrate())
             },
             'fall': {
                 'DataType': 'String',
@@ -91,7 +90,7 @@ def send_message(sensor_id, latitude, longitude, heart_rate, fall):
             }
         },
         MessageBody=(
-            'test body'
+            'simulated event'
         )
     )
 
