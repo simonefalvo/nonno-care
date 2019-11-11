@@ -33,7 +33,7 @@ class User:
         latitude = self.safety_latitude
         longitude = self.safety_longitude
         seed = None  # current system time
-        self.current_latitude, self.current_latitude = \
+        self.current_latitude, self.current_longitude = \
             pos_gen.get_random_position(latitude, longitude, seed, 0, distance)
 
     @property
