@@ -23,7 +23,7 @@ def main():
         while True:
             counter += 1
             user.next_position()
-            send_message(user)# TODO: creare un altro tipo di messaggio
+            send_message(user)
             time.sleep(PERIOD)
     except KeyboardInterrupt:
         fall_event_simulator.join()
