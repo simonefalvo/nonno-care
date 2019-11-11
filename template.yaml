@@ -160,12 +160,12 @@ Resources:
       AttributeDefinitions:
         - AttributeName: sensor_id
           AttributeType: S
-        - AttributeName: timestamp
+        - AttributeName: typestamp
           AttributeType: S
       KeySchema:
         - AttributeName: sensor_id
           KeyType: HASH
-        - AttributeName: timestamp
+        - AttributeName: typestamp
           KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1

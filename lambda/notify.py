@@ -24,8 +24,7 @@ def handler(event, context):
         table.put_item(
             Item={
                 'sensor_id': sensor_id,
-                'timestamp': timestamp,
-                'type': accident_type,
+                'typestamp': timestamp + '#' + accident_type,
                 'latitude': latitude,
                 'longitude': longitude,
                 'heart_rate': heart_rate,

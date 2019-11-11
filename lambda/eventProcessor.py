@@ -35,7 +35,7 @@ def handler(event, context):
 
         if 'fall' in attributes:
             fall_data = attributes["fall"]["stringValue"]
-            item['fall'] = fall_data
+            item['fall_data'] = fall_data
 
             message = "Possibile caduta"
             topic = os.environ['SNS_TOPIC_FALL_DETECTION']
@@ -79,7 +79,7 @@ def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, hea
         }
     }
     if fall_data is not None:
-        attributes['fall'] = {
+        attributes['fall_data'] = {
                 'DataType': 'String',
                 'StringValue': fall_data
             }
