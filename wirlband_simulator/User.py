@@ -4,8 +4,11 @@ import wirlband_simulator.simulator_position as pos_gen
 
 class User:
 
-    AVG_HRATE = 75
-    VAR_HRATE = 15
+    AVG_HRATE = 75      # average heart rate
+    VAR_HRATE = 15      # heart rate variance
+    AVG_SPEED = 0.0005  # average speed [km/s]
+    VAR_SPEED = 0.0001  # average speed [km/s]
+    SAFETY_PROB = 0.7
 
     def __init__(self, sensor_id, name, email):
         # Generate user data
@@ -17,19 +20,21 @@ class User:
         self._safety_longitude = random.uniform(-180, 180)
         self._current_latitude = self._safety_latitude
         self._current_longitude = self._safety_longitude
-        # Todo: self._safety_radius = random.uniform(10, 15)
-        self._safety_radius = 0.5
+        self._safety_radius = random.uniform(0.5, 1)    # [km]
+        self._avg_speed = random.gauss(User.AVG_SPEED, User.VAR_SPEED)
         self._email = email
 
     def current_hrate(self):
         return int(random.gauss(self.avg_hrate, self.var_hrate))
 
-    def next_position(self):
-        latitude = self.current_latitude
-        longitude = self.current_longitude
+    def next_position(self, sampling_period):
+        max_distance = user.avg_speed * sampling_period
+        distance = user.safety_radius if random.random() < User.SAFETY_PROB else max_distance
+        latitude = self.safety_latitude
+        longitude = self.safety_longitude
         seed = None  # current system time
         self.current_latitude, self.current_latitude = \
-            pos_gen.get_random_position(latitude, longitude, seed, 0, 0.5)
+            pos_gen.get_random_position(latitude, longitude, seed, 0, distance)
 
     @property
     def name(self):
@@ -71,6 +76,10 @@ class User:
     def safety_radius(self):
         return self._safety_radius
 
+    @property
+    def avg_speed(self):
+        return self._avg_speed
+
     @name.setter
     def name(self, new_name):
         self._name = new_name
@@ -95,7 +104,7 @@ class User:
 if __name__ == '__main__':
     user = User(1, "PUMA", "smvfal@gmail.com")
     for i in range(10):
-        user.next_position()
+        user.next_position(120)
         print("Heart rate:", user.current_hrate())
         print("latitude:", user.current_latitude)
         print("longitude:", user.current_longitude)
