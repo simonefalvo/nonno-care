@@ -1,12 +1,14 @@
 import boto3
 import time
 from wirlband_simulator.User import User
-from wirlband_simulator import AsynchronousEventThread
+from wirlband_simulator import AsynchronousSOSEventThread
+from wirlband_simulator import AsynchronousFallEventThread
+from wirlband_simulator.sqs import send_message
 
 
 PERIOD = 120  # Sample period
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1INIID3URVE6W"
-USER_DATA_TABLE = "nonno-stack-UserDataTable-PUC8NHYXVQCO"
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1LBSEA3CRURF6"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-125JIRLB2B5XP"
 
 
 def main():
@@ -15,18 +17,22 @@ def main():
     user = User(sensor_id, "Pumero", "pietrangeli.aldo@gmail.com")
     register_user(user)
 
-    fall_event_simulator = AsynchronousEventThread.AsynchronusEventThread(user)
+    fall_event_simulator = AsynchronousFallEventThread.AsynchronousFallEventThread(user)
+    sos_event_simulator = AsynchronousSOSEventThread.AsynchronousSOSEventThread(user)
     fall_event_simulator.start()
+    sos_event_simulator.start()
 
     counter = 0
     try:
         while True:
             counter += 1
             user.next_position()
-            send_message(user)# TODO: creare un altro tipo di messaggio
+            send_message(user)
             time.sleep(PERIOD)
     except KeyboardInterrupt:
         fall_event_simulator.join()
+        sos_event_simulator.join()
+        exit()
         pass
 
 
@@ -45,54 +51,6 @@ def register_user(user):
         }
     )
     print(response)
-
-
-def send_message(user, fall=None):
-
-    timestamp = time.time()
-
-    # Create SQS client
-    sqs = boto3.client('sqs')
-
-    attributes = {
-        'sensor_id': {
-            'DataType': 'Number',
-            'StringValue': str(user.sensor_id)
-        },
-        'timestamp': {
-            'DataType': 'String',
-            'StringValue': str(timestamp)
-        },
-        'latitude': {
-            'DataType': 'Number.float',
-            'StringValue': str(user.current_latitude)
-        },
-        'longitude': {
-            'DataType': 'Number.float',
-            'StringValue': str(user.current_longitude)
-        },
-        'heart_rate': {
-            'DataType': 'Number',
-            'StringValue': str(user.current_hrate())
-        }
-    }
-
-    if fall is not None:
-        attributes['fall'] = {
-                'DataType': 'String',
-                'StringValue': fall
-            }
-
-    # Send message to SQS queue
-    response = sqs.send_message(
-        QueueUrl=QUEUE_URL,
-        MessageAttributes=attributes,
-        MessageBody=(
-            'simulated event'
-        )
-    )
-
-    print(response['MessageId'])
 
 
 if __name__ == '__main__':
