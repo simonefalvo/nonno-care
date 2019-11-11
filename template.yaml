@@ -31,6 +31,8 @@ Resources:
           SENSOR_DATA_TABLE: !Ref SensorDataTable
           SNS_TOPIC_HEARTRATE: !Ref SNSTopicHeartRate
           SNS_TOPIC_FALL_DETECTION: !Ref SNSTopicFall
+          SNS_TOPIC_SOS: !Ref SNSTopicSOS
+          SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
@@ -175,6 +177,9 @@ Resources:
     Type: AWS::SNS::Topic
 
   SNSTopicFall:
+    Type: AWS::SNS::Topic
+
+  SNSTopicSOS:
     Type: AWS::SNS::Topic
 
   SNSTopicNotify:

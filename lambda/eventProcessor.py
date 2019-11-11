@@ -33,24 +33,34 @@ def handler(event, context):
                 'heart_rate': heart_rate
             }
 
-        if 'fall' in attributes:
-            fall_data = attributes["fall"]["stringValue"]
+        if 'fall_data' in attributes:
+            fall_data = attributes["fall_data"]["stringValue"]
             item['fall_data'] = fall_data
 
             message = "Possibile caduta"
             topic = os.environ['SNS_TOPIC_FALL_DETECTION']
-            print(publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data))
+            print(publish_topic(topic, "caduta", message, sensor_id, timestamp,
+                                latitude, longitude, heart_rate, fall_data=fall_data))
 
         if int(heart_rate) > MAX_FREQ:
             message = "Possibile anomalia cardiaca"
             topic = os.environ['SNS_TOPIC_HEARTRATE']
-            print(publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate))
+            print(publish_topic(topic, "anomalia cardiaca", message, sensor_id, timestamp,
+                                latitude, longitude, heart_rate))
+
+        if 'sos' in attributes:
+            item['sos'] = '1'
+            message = "Richiesta di SOS "
+            topic = os.environ['SNS_TOPIC_NOTIFY']
+            print(publish_topic(topic, "richiesta SOS", message, sensor_id, timestamp,
+                                latitude, longitude, heart_rate, sos=1))
 
         table.put_item(Item=item)
 
 
 # TODO: creare un layer
-def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, heart_rate, fall_data=None):
+def publish_topic(topic, notification_type, message, sensor_id, timestamp,
+                  latitude, longitude, heart_rate, sos=None, fall_data=None):
 
     print("Topic dentro la funzione:", topic)
     # Create an SNS client
@@ -76,6 +86,10 @@ def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, hea
         'heart_rate': {
             'DataType': 'Number',
             'StringValue': heart_rate
+        },
+        'type': {
+            'DataType': 'String',
+            'StringValue': notification_type
         }
     }
     if fall_data is not None:
@@ -83,7 +97,13 @@ def publish_topic(topic, message, sensor_id, timestamp, latitude, longitude, hea
                 'DataType': 'String',
                 'StringValue': fall_data
             }
+    if sos is not None:
+        attributes['sos'] = {
+                'DataType': 'String',
+                'StringValue': '1'
+            }
 
+    print(attributes)
     # Publish a simple message to the specified SNS topic
     return sns.publish(
         TopicArn=topic,

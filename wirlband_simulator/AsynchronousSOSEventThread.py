@@ -24,6 +24,6 @@ class AsynchronousSOSEventThread(Thread):
             print("Thread SOS risvegliato dopo sleep di ", sleep_time)
 
             # genero evento asincrono
-            send_message(self.my_user, fall=None, sos=1)
+            send_message(self.my_user, sos=1)
 
             print("Thread ha inoltrato l'evento SOS ")

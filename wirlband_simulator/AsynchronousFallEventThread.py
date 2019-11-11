@@ -31,9 +31,10 @@ class AsynchronousFallEventThread(Thread):
 
             print("Thread Caduta ha inoltrato l'evento: ", self.fall_event_generator.get_event_name())
 
+            # TODO: controllare che evento sia stato di caduta
             # dopo la caduta con una certa p mando sos
             sleep_time = self.min_sleep + (random() * (self.max_sleep - self.min_sleep))
             time.sleep(sleep_time)
             if random() > 0.5:
-                send_message(self.my_user, fall=None, sos=1)
+                send_message(self.my_user, fall_data=None, sos=1)
                 print("Thread Caduta ha inoltrato SOS")

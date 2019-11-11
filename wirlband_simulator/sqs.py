@@ -4,7 +4,7 @@ import time
 QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1LBSEA3CRURF6"
 
 
-def send_message(user, fall=None, sos=None):
+def send_message(user, fall_data=None, sos=None):
 
     timestamp = time.time()
 
@@ -34,10 +34,10 @@ def send_message(user, fall=None, sos=None):
         }
     }
 
-    if fall is not None:
-        attributes['fall'] = {
+    if fall_data is not None:
+        attributes['fall_data'] = {
                 'DataType': 'String',
-                'StringValue': fall
+                'StringValue': fall_data
             }
 
     if sos is not None:

@@ -26,7 +26,7 @@ def main():
     try:
         while True:
             counter += 1
-            user.next_position()
+            user.next_position(PERIOD)
             send_message(user)
             time.sleep(PERIOD)
     except KeyboardInterrupt:

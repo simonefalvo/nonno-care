@@ -28,8 +28,8 @@ class User:
         return int(random.gauss(self.avg_hrate, self.var_hrate))
 
     def next_position(self, sampling_period):
-        max_distance = user.avg_speed * sampling_period
-        distance = user.safety_radius if random.random() < User.SAFETY_PROB else max_distance
+        max_distance = self.avg_speed * sampling_period
+        distance = self.safety_radius if random.random() < User.SAFETY_PROB else max_distance
         latitude = self.safety_latitude
         longitude = self.safety_longitude
         seed = None  # current system time
