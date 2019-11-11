@@ -30,6 +30,7 @@ Resources:
         Variables:
           SENSOR_DATA_TABLE: !Ref SensorDataTable
           SNS_TOPIC_HEARTRATE: !Ref SNSTopicHeartRate
+          SNS_TOPIC_POSITION: !Ref SNSTopicPosition
           SNS_TOPIC_FALL_DETECTION: !Ref SNSTopicFall
           SNS_TOPIC_SOS: !Ref SNSTopicSOS
           SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
@@ -59,6 +60,26 @@ Resources:
           Properties:
             Path: '/DynamoDBManager'
             Method: post
+
+  checkPosition:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: checkPosition.handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          USER_DATA_TABLE: !Ref UserDataTable
+          SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSNSFullAccess
+      Events:
+        freqEvent:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopicPosition
 
   checkHeartRate:
     Type: AWS::Serverless::Function
@@ -174,6 +195,9 @@ Resources:
         WriteCapacityUnits: 1
 
   SNSTopicHeartRate:
+    Type: AWS::SNS::Topic
+
+  SNSTopicPosition:
     Type: AWS::SNS::Topic
 
   SNSTopicFall:

@@ -33,6 +33,11 @@ def handler(event, context):
                 'heart_rate': heart_rate
             }
 
+        message = "Controllo posizione"
+        topic = os.environ['SNS_TOPIC_POSITION']
+        print(publish_topic(topic, "controllo posizione", message, sensor_id, timestamp,
+                            latitude, longitude, heart_rate))
+
         if 'fall_data' in attributes:
             fall_data = attributes["fall_data"]["stringValue"]
             item['fall_data'] = fall_data
