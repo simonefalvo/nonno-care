@@ -1,3 +1,4 @@
+import sys
 import boto3
 import time
 from wirlband_simulator.User import User
@@ -13,7 +14,7 @@ USER_DATA_TABLE = "nonno-stack-UserDataTable-125JIRLB2B5XP"
 
 def main():
 
-    sensor_id = 4
+    sensor_id = sys.argv[1]
     user = User(sensor_id, "Pumero", "pietrangeli.aldo@gmail.com")
     register_user(user)
 
@@ -45,6 +46,7 @@ def register_user(user):
             'sensor_id': str(user.sensor_id),
             'safety_latitude': str(user.safety_latitude),
             'safety_longitude': str(user.safety_longitude),
+            'safety_radius': str(user.safety_radius),
             'avg_hrate': str(user.avg_hrate),
             'var_hrate': str(user.var_hrate),
             'email': user.email
