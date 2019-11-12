@@ -1,26 +1,22 @@
 from threading import Thread
 import time
-from random import random, seed
+import numpy as np
 from wirlband_simulator.sqs import send_message
 
 
 class AsynchronousSOSEventThread(Thread):
 
-    seed = None
-
-    def __init__(self, user):
+    def __init__(self, user, avg_period):
         self.my_user = user
-        self.max_sleep = 60  # TODO: rendere parametri
-        self.min_sleep = 0
+        self.avg_period = avg_period
         Thread.__init__(self)
 
     def run(self):
 
         print("Thread SOS avviato")
         while True:
-            sleep_time = self.min_sleep + (random() * (self.max_sleep - self.min_sleep))
+            sleep_time = np.random.exponential(scale=self.avg_period)
             time.sleep(sleep_time)
-
             print("Thread SOS risvegliato dopo sleep di ", sleep_time)
 
             # genero evento asincrono

@@ -1,18 +1,18 @@
 from threading import Thread
 import time
-from random import random, seed
+import numpy as np
+from random import random
 from wirlband_simulator.FallEvent import FallEvent
 from wirlband_simulator.sqs import send_message
 
 
 class AsynchronousFallEventThread(Thread):
 
-    seed = None
-
-    def __init__(self, user):
+    def __init__(self, user, avg_period):
         self.my_user = user
+        self.avg_period = avg_period
         self.fall_event_generator = FallEvent()
-        self.max_sleep = 60  # TODO: rendere parametri
+        self.max_sleep = 60
         self.min_sleep = 0
         Thread.__init__(self)
 
@@ -20,7 +20,7 @@ class AsynchronousFallEventThread(Thread):
 
         print("Thread Caduta avviato")
         while True:
-            sleep_time = self.min_sleep + (random() * (self.max_sleep - self.min_sleep))
+            sleep_time = np.random.exponential(scale=self.avg_period)
             time.sleep(sleep_time)
 
             print("Thread Caduta risvegliato dopo sleep di ", sleep_time)
@@ -36,5 +36,5 @@ class AsynchronousFallEventThread(Thread):
             sleep_time = self.min_sleep + (random() * (self.max_sleep - self.min_sleep))
             time.sleep(sleep_time)
             if random() > 0.5:
-                send_message(self.my_user, fall_data=None, sos=1)
+                send_message(self.my_user, sos=1)
                 print("Thread Caduta ha inoltrato SOS")

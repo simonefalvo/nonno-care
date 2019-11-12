@@ -7,10 +7,13 @@ from wirlband_simulator import AsynchronousFallEventThread
 from wirlband_simulator.sqs import send_message
 
 
-PERIOD = 120  # Sample period
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1LBSEA3CRURF6"
 USER_DATA_TABLE = "nonno-stack-UserDataTable-125JIRLB2B5XP"
 
+SAMPLE_PERIOD = 120  # Sample period
+#FALL_PERIOD = 1 * 60 * 60  # seconds
+#SOS_PERIOD = 1 * 24 * 3600  # seconds
+AVG_FALL_PERIOD = 120  # seconds
+AVG_SOS_PERIOD = 120  # seconds
 
 def main():
 
@@ -18,8 +21,8 @@ def main():
     user = User(sensor_id, "Pumero", "pietrangeli.aldo@gmail.com")
     register_user(user)
 
-    fall_event_simulator = AsynchronousFallEventThread.AsynchronousFallEventThread(user)
-    sos_event_simulator = AsynchronousSOSEventThread.AsynchronousSOSEventThread(user)
+    fall_event_simulator = AsynchronousFallEventThread.AsynchronousFallEventThread(user, AVG_FALL_PERIOD)
+    sos_event_simulator = AsynchronousSOSEventThread.AsynchronousSOSEventThread(user, AVG_SOS_PERIOD)
     fall_event_simulator.start()
     sos_event_simulator.start()
 
@@ -27,9 +30,9 @@ def main():
     try:
         while True:
             counter += 1
-            user.next_position(PERIOD)
+            user.next_position(SAMPLE_PERIOD)
             send_message(user)
-            time.sleep(PERIOD)
+            time.sleep(SAMPLE_PERIOD)
     except KeyboardInterrupt:
         fall_event_simulator.join()
         sos_event_simulator.join()
