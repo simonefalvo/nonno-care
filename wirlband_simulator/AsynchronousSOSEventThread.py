@@ -1,7 +1,7 @@
 from threading import Thread
 import time
 import numpy as np
-from wirlband_simulator.sqs import send_message
+from sqs import send_message
 
 
 class AsynchronousSOSEventThread(Thread):

@@ -1,5 +1,5 @@
 import random
-import wirlband_simulator.simulator_position as pos_gen
+import simulator_position as pos_gen
 
 
 class User:

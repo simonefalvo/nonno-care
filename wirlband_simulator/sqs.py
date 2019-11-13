@@ -1,7 +1,7 @@
 import boto3
 import time
 
-QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1LBSEA3CRURF6"
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-CYHPY5IOPMJ5"
 
 
 def send_message(user, fall_data=None, sos=None):

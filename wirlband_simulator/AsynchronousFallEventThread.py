@@ -2,8 +2,8 @@ from threading import Thread
 import time
 import numpy as np
 from random import random
-from wirlband_simulator.FallEvent import FallEvent
-from wirlband_simulator.sqs import send_message
+from FallEvent import FallEvent
+from sqs import send_message
 
 
 class AsynchronousFallEventThread(Thread):

@@ -1,13 +1,14 @@
 import sys
 import boto3
 import time
-from wirlband_simulator.User import User
-from wirlband_simulator import AsynchronousSOSEventThread
-from wirlband_simulator import AsynchronousFallEventThread
-from wirlband_simulator.sqs import send_message
+
+from User import User
+import AsynchronousSOSEventThread
+import AsynchronousFallEventThread
+from sqs import send_message
 
 
-USER_DATA_TABLE = "nonno-stack-UserDataTable-125JIRLB2B5XP"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-IACOAI88802V"
 
 SAMPLE_PERIOD = 120  # Sample period
 #FALL_PERIOD = 1 * 60 * 60  # seconds
@@ -15,14 +16,17 @@ SAMPLE_PERIOD = 120  # Sample period
 AVG_FALL_PERIOD = 120  # seconds
 AVG_SOS_PERIOD = 120  # seconds
 
+K = 1  # time compression
+
+
 def main():
 
     sensor_id = sys.argv[1]
-    user = User(sensor_id, "Pumero", "pietrangeli.aldo@gmail.com")
+    user = User(sensor_id, "Pumero", "nonnocare.notify@gmail.com")
     register_user(user)
 
-    fall_event_simulator = AsynchronousFallEventThread.AsynchronousFallEventThread(user, AVG_FALL_PERIOD)
-    sos_event_simulator = AsynchronousSOSEventThread.AsynchronousSOSEventThread(user, AVG_SOS_PERIOD)
+    fall_event_simulator = AsynchronousFallEventThread.AsynchronousFallEventThread(user, K * AVG_FALL_PERIOD)
+    sos_event_simulator = AsynchronousSOSEventThread.AsynchronousSOSEventThread(user, K * AVG_SOS_PERIOD)
     fall_event_simulator.start()
     sos_event_simulator.start()
 
@@ -32,7 +36,7 @@ def main():
             counter += 1
             user.next_position(SAMPLE_PERIOD)
             send_message(user)
-            time.sleep(SAMPLE_PERIOD)
+            time.sleep(K * SAMPLE_PERIOD)
     except KeyboardInterrupt:
         fall_event_simulator.join()
         sos_event_simulator.join()

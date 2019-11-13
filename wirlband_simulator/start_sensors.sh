@@ -7,7 +7,7 @@ if [[ $# -eq 0 ]]
 else
     for (( i=1; i<=N; i++ ))
         do
-            python simulator.py ${i} &
+            python3 ./simulator.py ${i} &
             echo "started simulator with sensor_id=$i"
         done
     echo "done"
