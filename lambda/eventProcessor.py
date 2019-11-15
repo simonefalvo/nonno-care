@@ -110,8 +110,13 @@ def publish_topic(topic, notification_type, message, sensor_id, timestamp,
 
     print(attributes)
     # Publish a simple message to the specified SNS topic
-    return sns.publish(
+    response = sns.publish(
         TopicArn=topic,
         Message=message,
         MessageAttributes=attributes
     )
+
+    print("JOB_ID {}, RequestId: {}"
+          .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+
+    return response

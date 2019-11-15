@@ -37,6 +37,9 @@ def handler(event, context):
         send_smtp(email, message)
         #send_email(email, message)
 
+        print("JOB_ID {}, RequestId: {}"
+              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+
 
 def get_subscribers(sensor_id):
     dynamodb = boto3.resource('dynamodb')

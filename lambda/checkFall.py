@@ -6,9 +6,8 @@ from scipy.stats import kurtosis, skew
 import pandas as pd
 import numpy as np
 
-
 # grab environment variables
-#ENDPOINT_NAME = os.environ['ENDPOINT_NAME']
+# ENDPOINT_NAME = os.environ['ENDPOINT_NAME']
 runtime = boto3.client('runtime.sagemaker')
 ENDPOINT_NAME = 'fall-model-endpoint'
 
@@ -53,29 +52,42 @@ def handler(event, context):
         df_gir_y = ((df_gir_y - y_gir_mean) / (max_gir - min_gir))
         df_gir_z = ((df_gir_z - z_gir_mean) / (max_gir - min_gir))
 
-        x_acc_str = "{:.9f}".format(max(df_acc_x)) + ',' + "{:.9f}".format(min(df_acc_x)) + ',' + "{:.9f}".format(np.mean(df_acc_x)) + ',' + "{:.9f}".format(np.var(df_acc_x)) + ',' + "{:.9f}".format(kurtosis(df_acc_x)) + ',' + "{:.9f}".format(skew(df_acc_x))
-        x_gir_str = "{:.9f}".format(max(df_gir_x)) + ',' + "{:.9f}".format(min(df_gir_x)) + ',' + "{:.9f}".format(np.mean(df_gir_x)) + ',' + "{:.9f}".format(np.var(df_gir_x)) + ',' + "{:.9f}".format(kurtosis(df_gir_x)) + ',' + "{:.9f}".format(skew(df_gir_x))
+        x_acc_str = "{:.9f}".format(max(df_acc_x)) + ',' + "{:.9f}".format(min(df_acc_x)) + ',' + "{:.9f}".format(
+            np.mean(df_acc_x)) + ',' + "{:.9f}".format(np.var(df_acc_x)) + ',' + "{:.9f}".format(
+            kurtosis(df_acc_x)) + ',' + "{:.9f}".format(skew(df_acc_x))
+        x_gir_str = "{:.9f}".format(max(df_gir_x)) + ',' + "{:.9f}".format(min(df_gir_x)) + ',' + "{:.9f}".format(
+            np.mean(df_gir_x)) + ',' + "{:.9f}".format(np.var(df_gir_x)) + ',' + "{:.9f}".format(
+            kurtosis(df_gir_x)) + ',' + "{:.9f}".format(skew(df_gir_x))
 
-        y_acc_str = "{:.9f}".format(max(df_acc_y)) + ',' + "{:.9f}".format(min(df_acc_y)) + ',' + "{:.9f}".format(np.mean(df_acc_y)) + ',' + "{:.9f}".format(np.var(df_acc_y)) + ',' + "{:.9f}".format(kurtosis(df_acc_y)) + ',' + "{:.9f}".format(skew(df_acc_y))
-        y_gir_str = "{:.9f}".format(max(df_gir_y)) + ',' + "{:.9f}".format(min(df_gir_y)) + ',' + "{:.9f}".format(np.mean(df_gir_y)) + ',' + "{:.9f}".format(np.var(df_gir_y)) + ',' + "{:.9f}".format(kurtosis(df_gir_y)) + ',' + "{:.9f}".format(skew(df_gir_y))
+        y_acc_str = "{:.9f}".format(max(df_acc_y)) + ',' + "{:.9f}".format(min(df_acc_y)) + ',' + "{:.9f}".format(
+            np.mean(df_acc_y)) + ',' + "{:.9f}".format(np.var(df_acc_y)) + ',' + "{:.9f}".format(
+            kurtosis(df_acc_y)) + ',' + "{:.9f}".format(skew(df_acc_y))
+        y_gir_str = "{:.9f}".format(max(df_gir_y)) + ',' + "{:.9f}".format(min(df_gir_y)) + ',' + "{:.9f}".format(
+            np.mean(df_gir_y)) + ',' + "{:.9f}".format(np.var(df_gir_y)) + ',' + "{:.9f}".format(
+            kurtosis(df_gir_y)) + ',' + "{:.9f}".format(skew(df_gir_y))
 
-        z_acc_str = "{:.9f}".format(max(df_acc_z)) + ',' + "{:.9f}".format(min(df_acc_z)) + ',' + "{:.9f}".format(np.mean(df_acc_z)) + ',' + "{:.9f}".format(np.var(df_acc_z)) + ',' + "{:.9f}".format(kurtosis(df_acc_z)) + ',' + "{:.9f}".format(skew(df_acc_z))
-        z_gir_str = "{:.9f}".format(max(df_gir_z)) + ',' + "{:.9f}".format(min(df_gir_z)) + ',' + "{:.9f}".format(np.mean(df_gir_z)) + ',' + "{:.9f}".format(np.var(df_gir_z)) + ',' + "{:.9f}".format(kurtosis(df_gir_z)) + ',' + "{:.9f}".format(skew(df_gir_z))
+        z_acc_str = "{:.9f}".format(max(df_acc_z)) + ',' + "{:.9f}".format(min(df_acc_z)) + ',' + "{:.9f}".format(
+            np.mean(df_acc_z)) + ',' + "{:.9f}".format(np.var(df_acc_z)) + ',' + "{:.9f}".format(
+            kurtosis(df_acc_z)) + ',' + "{:.9f}".format(skew(df_acc_z))
+        z_gir_str = "{:.9f}".format(max(df_gir_z)) + ',' + "{:.9f}".format(min(df_gir_z)) + ',' + "{:.9f}".format(
+            np.mean(df_gir_z)) + ',' + "{:.9f}".format(np.var(df_gir_z)) + ',' + "{:.9f}".format(
+            kurtosis(df_gir_z)) + ',' + "{:.9f}".format(skew(df_gir_z))
 
         payload = x_acc_str + ',' + y_acc_str + ',' + z_acc_str + ',' + x_gir_str + ',' + y_gir_str + ',' + z_gir_str
         response = runtime.invoke_endpoint(EndpointName=ENDPOINT_NAME,
                                            ContentType='text/csv',
                                            Body=payload)
 
-        #print(response)
+        # print(response)
         result = json.loads(response['Body'].read().decode())
-        #print(result)
+        # print(result)
 
         result = round(float(result))
         print(result)
 
         if result == 0:
-            return "NO CADUTA"
+            print("JOB_ID {}, RequestId: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
         else:
             # Create an SNS client
             sns = boto3.client('sns')
@@ -113,12 +125,11 @@ def handler(event, context):
             )
             # Print out the response
             print(response)
-            return "CADUTA"
 
 
 def read_message(message):
-    TESTDATA = StringIO(message)
-    df = pd.read_csv(TESTDATA, sep=",")
+    testdata = StringIO(message)
+    df = pd.read_csv(testdata, sep=",")
 
     # leggi le colonne acc
     column_acc = df.loc[df[' Sensor Type'] == 0]
