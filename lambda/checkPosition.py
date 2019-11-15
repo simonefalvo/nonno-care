@@ -69,6 +69,8 @@ def handler(event, context):
             print(response)
         else:
             print("Dentro la safety zone")
+            print("JOB_ID {}, RequestId: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
 
 
 # da posizione in gradi decimali a gradi, primi, sec (41.85577° = 41 ° 51 ' 20 ")

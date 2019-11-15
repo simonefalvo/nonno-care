@@ -68,4 +68,7 @@ def handler(event, context):
             )
             # Print out the response
             print(response)
+        else:
+            print("JOB_ID {}, RequestId: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
 

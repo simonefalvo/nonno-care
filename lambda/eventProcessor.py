@@ -62,6 +62,9 @@ def handler(event, context):
 
         table.put_item(Item=item)
 
+        print("JOB_ID {}, RequestId: {}"
+              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+
 
 # TODO: creare un layer
 def publish_topic(topic, notification_type, message, sensor_id, timestamp,

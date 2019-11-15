@@ -1,6 +1,8 @@
 import sys
 import boto3
 import time
+import random
+import math
 
 from User import User
 import AsynchronousSOSEventThread
@@ -8,7 +10,7 @@ import AsynchronousFallEventThread
 from sqs import send_message
 
 
-USER_DATA_TABLE = "nonno-stack-UserDataTable-IACOAI88802V"
+USER_DATA_TABLE = "nonno-stack-UserDataTable-MOYD6MFVZPD6"
 
 SAMPLE_PERIOD = 120  # Sample period
 #FALL_PERIOD = 1 * 60 * 60  # seconds
@@ -22,6 +24,12 @@ K = 1  # time compression
 def main():
 
     sensor_id = sys.argv[1]
+    processes_number = int(sys.argv[2])
+    # random start
+    start_delay = random.uniform(0, math.log2(processes_number))
+    time.sleep(start_delay)
+
+
     user = User(sensor_id, "Pumero", "nonnocare.notify@gmail.com")
     register_user(user)
 
