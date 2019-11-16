@@ -53,6 +53,7 @@ Resources:
       Environment:
         Variables:
           SENSOR_DATA_TABLE: !Ref SensorDataTable
+          ACCIDENT_DATA_TABLE: !Ref AccidentDataTable
       Policies: AmazonDynamoDBFullAccess
       Events:
         HttpPost:
@@ -222,6 +223,9 @@ Outputs:
   SQSQueue:
     Description: "SQS events queue URL"
     Value: !Ref SQSQueue
+  UserDataTable:
+    Description: "DynamoDB UserDataTable name"
+    Value: !Ref UserDataTable
   ApiGatewayUrl:
     Description: "API Gateway endpoint URL for Prod stage"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/DynamoDBManager/"

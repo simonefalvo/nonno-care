@@ -8,12 +8,13 @@ from sqs import send_message
 
 class AsynchronousFallEventThread(Thread):
 
-    def __init__(self, user, avg_period):
+    def __init__(self, user, queue_url, avg_period):
         self.my_user = user
         self.avg_period = avg_period
         self.fall_event_generator = FallEvent()
         self.max_sleep = 60
         self.min_sleep = 0
+        self.queue_url = queue_url
         Thread.__init__(self)
 
     def run(self):
@@ -27,7 +28,7 @@ class AsynchronousFallEventThread(Thread):
 
             # genero evento asincrono
             fall_event = self.fall_event_generator.generate_and_get_event()
-            send_message(self.my_user, fall_event)
+            send_message(self.my_user, self.queue_url, fall_data=fall_event)
 
             print("Thread Caduta ha inoltrato l'evento: ", self.fall_event_generator.get_event_name())
 
@@ -36,5 +37,5 @@ class AsynchronousFallEventThread(Thread):
             sleep_time = self.min_sleep + (random() * (self.max_sleep - self.min_sleep))
             time.sleep(sleep_time)
             if random() > 0.5:
-                send_message(self.my_user, sos=1)
+                send_message(self.my_user, self.queue_url, sos=1)
                 print("Thread Caduta ha inoltrato SOS")

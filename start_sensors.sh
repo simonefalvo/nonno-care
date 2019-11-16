@@ -7,7 +7,7 @@ if [[ $# -eq 0 ]]
 else
     for (( i=1; i<=N; i++ ))
         do
-            python3 ./simulator.py ${i} ${N} &
+            python3 ./wirlband_simulator/simulator.py ${i} ${N} &
             echo "started simulator with sensor_id=$i"
         done
     echo "done"
