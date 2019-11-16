@@ -1,6 +1,6 @@
 {
-    "operation": "history",
-    "table": "sensors",
+    "operation": "accidents",
+    "table": "accidents",
     "payload": {
         "ExpressionAttributeValues": {
             ":id": "4"
