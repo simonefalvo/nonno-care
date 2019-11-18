@@ -30,6 +30,12 @@ df_notify <- read.csv(
 res <- rbind(df_position, df_notify,
              df_caduta, df_battiti)
 
+res <- df_notify <- read.csv(  
+  file= './throughput/logs-insights-results-checkposition-100-1440.csv',
+  header = T,
+  stringsAsFactors = F,
+  sep=",")
+
 # converto i timestamp in timestamp unix
 res$X.timestamp = as.numeric(as.POSIXct(res$X.timestamp))
 
@@ -39,7 +45,7 @@ agg = aggregate(res,
                 FUN = max)
 
 # prendo il min timestamp da cui contare ogni x secondi il num di pacchetti processati
-delta = 5
+delta = 15
 start_ts = min(agg$X.timestamp)
 current_ts = start_ts
 end_ts = max(agg$X.timestamp)
