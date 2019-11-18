@@ -1,0 +1,51 @@
+@timestamp,@message
+2019-11-18 15:15:22.073,"REPORT RequestId: fc30c918-1a94-44aa-b242-ca070194a70e	Duration: 3003.17 ms	Billed Duration: 3000 ms	Memory Size: 128 MB	Max Memory Used: 75 MB	Init Duration: 181.05 ms	
+"
+2019-11-18 15:15:22.855,"JOB_ID 901574090115-303689, RequestId: 565d7515-418e-4939-8658-d1139310e88e
+"
+2019-11-18 15:15:22.855,"REPORT RequestId: 565d7515-418e-4939-8658-d1139310e88e	Duration: 2633.12 ms	Billed Duration: 2700 ms	Memory Size: 128 MB	Max Memory Used: 75 MB	Init Duration: 184.47 ms	
+"
+2019-11-18 15:16:20.712,"JOB_ID 141574090177-7982638, RequestId: fcb6ef4d-5d3f-43ad-ba7e-93a745abba5e
+"
+2019-11-18 15:16:20.736,"REPORT RequestId: fcb6ef4d-5d3f-43ad-ba7e-93a745abba5e	Duration: 1463.42 ms	Billed Duration: 1500 ms	Memory Size: 128 MB	Max Memory Used: 75 MB	
+"
+2019-11-18 15:16:23.725,"JOB_ID 671574090113-171249, RequestId: fc30c918-1a94-44aa-b242-ca070194a70e
+"
+2019-11-18 15:16:23.755,"REPORT RequestId: fc30c918-1a94-44aa-b242-ca070194a70e	Duration: 1481.09 ms	Billed Duration: 1500 ms	Memory Size: 128 MB	Max Memory Used: 75 MB	
+"
+2019-11-18 15:18:28.996,"JOB_ID 771574090306-216201, RequestId: b91be561-c621-4acd-b42e-2d507eb07615
+"
+2019-11-18 15:18:29.035,"REPORT RequestId: b91be561-c621-4acd-b42e-2d507eb07615	Duration: 1383.32 ms	Billed Duration: 1400 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
+"
+2019-11-18 15:18:37.759,"JOB_ID 611574090315-0694487, RequestId: 27b2987b-3fb8-4c9f-88c3-a3b6d9e62498
+"
+2019-11-18 15:18:37.795,"REPORT RequestId: 27b2987b-3fb8-4c9f-88c3-a3b6d9e62498	Duration: 1349.41 ms	Billed Duration: 1400 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
+"
+2019-11-18 15:18:50.450,"JOB_ID 741574090327-7561574, RequestId: 5ccedc8f-1c2a-4269-a13e-19038c8988d4
+"
+2019-11-18 15:18:50.451,"REPORT RequestId: 5ccedc8f-1c2a-4269-a13e-19038c8988d4	Duration: 1363.16 ms	Billed Duration: 1400 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
+"
+2019-11-18 15:19:01.403,"JOB_ID 111574090338-4682527, RequestId: 57268be9-37b3-4071-889d-d2df5873bb95
+"
+2019-11-18 15:19:01.435,"REPORT RequestId: 57268be9-37b3-4071-889d-d2df5873bb95	Duration: 1431.13 ms	Billed Duration: 1500 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
+"
+2019-11-18 15:19:23.936,"JOB_ID 31574090360-9521625, RequestId: 4cc52278-d8fc-4195-a90c-2f1ede5e27a3
+"
+2019-11-18 15:19:23.937,"REPORT RequestId: 4cc52278-d8fc-4195-a90c-2f1ede5e27a3	Duration: 1664.33 ms	Billed Duration: 1700 ms	Memory Size: 128 MB	Max Memory Used: 77 MB	
+"
+2019-11-18 15:20:19.106,"JOB_ID 671574090414-7790303, RequestId: 14e6b417-161a-4199-8210-96cc525a868a
+"
+2019-11-18 15:20:19.155,"REPORT RequestId: 14e6b417-161a-4199-8210-96cc525a868a	Duration: 1428.07 ms	Billed Duration: 1500 ms	Memory Size: 128 MB	Max Memory Used: 77 MB	
+"
+2019-11-18 15:20:25.750,"JOB_ID 271574090421-7561555, RequestId: b09fd931-d982-4e9f-a76c-4796eb3763fb
+"
+2019-11-18 15:20:25.751,"REPORT RequestId: b09fd931-d982-4e9f-a76c-4796eb3763fb	Duration: 1356.09 ms	Billed Duration: 1400 ms	Memory Size: 128 MB	Max Memory Used: 77 MB	
+"
+2019-11-18 15:20:27.666,"JOB_ID 611574090423-6505432, RequestId: 65b7e106-9f4d-421f-b7ec-55a0643bcde2
+"
+2019-11-18 15:20:27.688,"REPORT RequestId: 65b7e106-9f4d-421f-b7ec-55a0643bcde2	Duration: 2142.40 ms	Billed Duration: 2200 ms	Memory Size: 128 MB	Max Memory Used: 35 MB	
+"
+2019-11-18 15:21:20.831,"JOB_ID 741574090478-0057464, RequestId: 728f3944-d1de-4c81-8415-88f380155213
+"
+2019-11-18 15:21:20.867,"REPORT RequestId: 728f3944-d1de-4c81-8415-88f380155213	Duration: 1428.00 ms	Billed Duration: 1500 ms	Memory Size: 128 MB	Max Memory Used: 36 MB	
+"
