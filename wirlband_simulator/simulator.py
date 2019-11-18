@@ -1,58 +1,61 @@
 import sys
-import os
 import boto3
 import time
 import random
 import math
 
 from User import User
-import AsynchronousSOSEventThread as sos_thread
-import AsynchronousFallEventThread as fall_thread
-from sqs import send_message
+from event_gen.EventGenerator import EventGenerator
+from event_gen.ActivityEventGenerator import ActivityEventGenerator
+from event_gen.SosEventGenerator import SosEventGenerator
+from EventSenderThread import EventSenderThread
 
 import aws.cloudformation as cf
+import aws.sqs as sqs
 
 STACK_NAME = "nonno-stack"
 
 SAMPLE_PERIOD = 120  # Sample period
-#FALL_PERIOD = 1 * 60 * 60  # seconds
-#SOS_PERIOD = 1 * 24 * 3600  # seconds
+#AVG_FALL_PERIOD = 2 * 60 * 60  # seconds
+#AVG_ACTIVITY_PERIOD = 1 * 60 * 60  # seconds
+#AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
 AVG_FALL_PERIOD = 120  # seconds
 AVG_SOS_PERIOD = 120  # seconds
+AVG_ACTIVITY_PERIOD = 120  # seconds
 
 K = 1  # time compression
 
 
 def main():
-    print(os.getcwd())
+
     sensor_id = sys.argv[1]
     processes_number = int(sys.argv[2])
+
     # random start
     start_delay = random.uniform(0, math.log2(processes_number))
     time.sleep(start_delay)
 
+    # register new user
     user = User(sensor_id, "Pumero", "nonnocare.notify@gmail.com")
     register_user(user)
 
     queue_url = cf.stack_output(STACK_NAME, "SQSQueue")
 
-    fall_event_simulator = fall_thread.AsynchronousFallEventThread(user, queue_url, K * AVG_FALL_PERIOD)
-    sos_event_simulator = sos_thread.AsynchronousSOSEventThread(user, queue_url, K * AVG_SOS_PERIOD)
-    fall_event_simulator.start()
-    sos_event_simulator.start()
+    periodic_event_gen = EventGenerator(user)
+    sos_event_gen = SosEventGenerator(user)
+    activity_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/activities")
+    fall_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/falls")
 
-    counter = 0
-    try:
-        while True:
-            counter += 1
-            user.next_position(SAMPLE_PERIOD)
-            send_message(user, queue_url)
-            time.sleep(K * SAMPLE_PERIOD)
-    except KeyboardInterrupt:
-        fall_event_simulator.join()
-        sos_event_simulator.join()
-        exit()
-        pass
+    EventSenderThread(sos_event_gen, AVG_SOS_PERIOD, queue_url).start()
+    EventSenderThread(activity_event_gen, AVG_ACTIVITY_PERIOD, queue_url).start()
+    EventSenderThread(fall_event_gen, AVG_FALL_PERIOD, queue_url).start()
+
+    while True:
+        user.next_position(SAMPLE_PERIOD)
+        pe = periodic_event_gen.next()
+        sqs.send_message(queue_url, pe)
+        print("Periodic event user {}".format(user.sensor_id))
+        time.sleep(K * SAMPLE_PERIOD)
 
 
 def register_user(user):
@@ -60,7 +63,7 @@ def register_user(user):
     # Store user data
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
-    response = table.put_item(
+    return table.put_item(
         Item={
             'sensor_id': str(user.sensor_id),
             'safety_latitude': str(user.safety_latitude),
@@ -71,7 +74,6 @@ def register_user(user):
             'email': user.email
         }
     )
-    print(response)
 
 
 if __name__ == '__main__':
