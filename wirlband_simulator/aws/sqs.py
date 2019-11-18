@@ -15,4 +15,4 @@ def send_message(queue_url, attributes):
         )
     )
 
-    print(response['MessageId'])
+    return response
