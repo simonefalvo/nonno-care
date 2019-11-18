@@ -14,6 +14,7 @@ class User:
         # Generate user data
         self._sensor_id = sensor_id
         self._name = name
+        self._email = email
         self._avg_hrate = int(random.gauss(User.AVG_HRATE, User.VAR_HRATE))
         self._var_hrate = User.VAR_HRATE
         self._safety_latitude = random.uniform(-90, 90)
@@ -22,7 +23,6 @@ class User:
         self._current_longitude = self._safety_longitude
         self._safety_radius = random.uniform(0.5, 1)    # [km]
         self._avg_speed = random.gauss(User.AVG_SPEED, User.VAR_SPEED)
-        self._email = email
 
     def current_hrate(self):
         return int(random.gauss(self.avg_hrate, self.var_hrate))
