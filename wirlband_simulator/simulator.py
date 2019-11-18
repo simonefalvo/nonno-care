@@ -1,5 +1,4 @@
 import sys
-import boto3
 import time
 import random
 import math
@@ -11,23 +10,23 @@ from event_gen.SosEventGenerator import SosEventGenerator
 from EventSenderThread import EventSenderThread
 
 import aws.cloudformation as cf
+import aws.dynamodb as dynamodb
 import aws.sqs as sqs
 
 STACK_NAME = "nonno-stack"
 
 SAMPLE_PERIOD = 120  # Sample period
-#AVG_FALL_PERIOD = 2 * 60 * 60  # seconds
-#AVG_ACTIVITY_PERIOD = 1 * 60 * 60  # seconds
-#AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
+# AVG_FALL_PERIOD = 1 * 30 * 24 * 60 * 60  # seconds (once a month)
+# AVG_ACTIVITY_PERIOD = 3/2 * 1 * 60 * 60  # seconds (16 events in a 24 hours)
+# AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
 AVG_FALL_PERIOD = 120  # seconds
 AVG_SOS_PERIOD = 120  # seconds
 AVG_ACTIVITY_PERIOD = 120  # seconds
 
-K = 1  # time compression
+K = 1/4  # time compression
 
 
 def main():
-
     sensor_id = sys.argv[1]
     processes_number = int(sys.argv[2])
 
@@ -46,9 +45,9 @@ def main():
     activity_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/activities")
     fall_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/falls")
 
-    EventSenderThread(sos_event_gen, AVG_SOS_PERIOD, queue_url).start()
-    EventSenderThread(activity_event_gen, AVG_ACTIVITY_PERIOD, queue_url).start()
-    EventSenderThread(fall_event_gen, AVG_FALL_PERIOD, queue_url).start()
+    EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, queue_url).start()
+    EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, queue_url).start()
+    EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, queue_url).start()
 
     while True:
         user.next_position(SAMPLE_PERIOD)
@@ -61,19 +60,17 @@ def main():
 def register_user(user):
     table_name = cf.stack_output(STACK_NAME, "UserDataTable")
     # Store user data
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    return table.put_item(
-        Item={
-            'sensor_id': str(user.sensor_id),
-            'safety_latitude': str(user.safety_latitude),
-            'safety_longitude': str(user.safety_longitude),
-            'safety_radius': str(user.safety_radius),
-            'avg_hrate': str(user.avg_hrate),
-            'var_hrate': str(user.var_hrate),
-            'email': user.email
-        }
-    )
+    return dynamodb.put_item(table_name=table_name,
+                             item={
+                                 'sensor_id': str(user.sensor_id),
+                                 'safety_latitude': str(user.safety_latitude),
+                                 'safety_longitude': str(user.safety_longitude),
+                                 'safety_radius': str(user.safety_radius),
+                                 'avg_hrate': str(user.avg_hrate),
+                                 'var_hrate': str(user.var_hrate),
+                                 'email': user.email
+                             }
+                             )
 
 
 if __name__ == '__main__':
