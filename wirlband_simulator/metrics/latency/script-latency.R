@@ -89,16 +89,18 @@ generate_table <- function(file_name){
     result_df <- rbind(result_df, c(as.integer(ts), jobs_id[i], request, as.double(duration)))
     i <- i + 1
     
-  }
+  } 
   
   return(result_df)
 }
 
-file_name <- "./latency/logs-insights-results-position-100.csv"
-t1 <- generate_table("./latency/logs-insights-results-position-100.csv")
-t2 <- generate_table(file_name)
+file_name = "lat_100_notify.csv"
+file_in = paste0("./data/", file_name)
+file_out = paste0("./out/", file_name)
 
-all_data <- rbind(t1, t2)
+t1 <- generate_table(file_in)
+
+all_data <- t1
 
 
 all_data <- all_data[,-3] #rimuovo la colonna dei request-id non mi serve piu 
@@ -126,4 +128,4 @@ for(job in job_id){
   
 }
 
-write.csv(file_result, "risultati_latenza.csv")
+write.csv(file_result, file_out)
