@@ -1,8 +1,10 @@
 import boto3
 import time
 
+QUEUE_URL = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1SR020B5SOQ9Q"
 
-def send_message(user, queue_url, fall_data=None, sos=None):
+
+def send_message(user, fall_data=None, sos=None):
 
     timestamp = time.time()
 
@@ -46,7 +48,7 @@ def send_message(user, queue_url, fall_data=None, sos=None):
 
     # Send message to SQS queue
     response = sqs.send_message(
-        QueueUrl=queue_url,
+        QueueUrl=QUEUE_URL,
         MessageAttributes=attributes,
         MessageBody=(
             'simulated event'

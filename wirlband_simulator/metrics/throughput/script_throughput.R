@@ -1,18 +1,34 @@
 
+df_battiti <- read.csv(  
+  file= './throughput/logs-insights-results-battiti.csv',
+  header = T,
+  stringsAsFactors = F,
+  sep=",")
+
+
+df_caduta <- read.csv(  
+  file= './throughput/logs-insights-results-caduta.csv',
+  header = T,
+  stringsAsFactors = F,
+  sep=",")
+
+
 df_position <- read.csv(  
-                file= './throughput/logs-insights-results-check-position.csv',
-                header = T,
-                stringsAsFactors = F,
-                sep=",")
+  file= './throughput/logs-insights-results-check-position.csv',
+  header = T,
+  stringsAsFactors = F,
+  sep=",")
+
 
 df_notify <- read.csv(  
-                file= './throughput/logs-insights-results-notify.csv',
-                header = T,
-                stringsAsFactors = F,
-                sep=",")
+  file= './throughput/logs-insights-results-notify.csv',
+  header = T,
+  stringsAsFactors = F,
+  sep=",")
 
 # aggrego i dati in un unico dataframe
-res <- rbind(df_position, df_notify)
+res <- rbind(df_position, df_notify,
+             df_caduta, df_battiti)
 
 # converto i timestamp in timestamp unix
 res$X.timestamp = as.numeric(as.POSIXct(res$X.timestamp))
@@ -39,6 +55,7 @@ ts <- c()
     ts <- c(ts, current_ts)
     current_ts = current_ts + delta
 }
+
 
 plot(ts,value_graph, type="l") 
 

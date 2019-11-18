@@ -16,7 +16,7 @@ class FallEvent:
 
     # privato
     def __list_file_fall(self):
-        path = "wirlband_simulator/fall_file/"
+        path = "./fall_file/"
         # r=root, d=directories, f = files
         for r, d, f in os.walk(path):
             for file in f:
@@ -29,7 +29,8 @@ class FallEvent:
             self.event = f.read() + '\n'
 
     def generate_event(self):
-        i = round(random() * (len(self.files) - 1))
+        #i = round(random.uniform(0, len(self.files)-1))
+        i = round(random()*(len(self.files)-1))
         self.event_file_name = self.files[i]
         self.__fall_data()
 
