@@ -157,9 +157,7 @@ Resources:
       KeySchema:
         - AttributeName: sensor_id
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+      BillingMode: PAY_PER_REQUEST
 
   SensorDataTable:
     Type: AWS::DynamoDB::Table
@@ -174,9 +172,7 @@ Resources:
           KeyType: HASH
         - AttributeName: timestamp
           KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
 
   AccidentDataTable:
     Type: AWS::DynamoDB::Table
@@ -192,8 +188,8 @@ Resources:
         - AttributeName: typestamp
           KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
   SNSTopicHeartRate:
     Type: AWS::SNS::Topic
