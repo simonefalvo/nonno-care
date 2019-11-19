@@ -32,5 +32,4 @@ class EventSenderThread(Thread):
 
             event = self.event_generator.next()
             sqs.send_message(self.queue_url, event)
-            print("Thread user {}: {}"
-                  .format(self.event_generator.user.sensor_id, self.event_generator.description()))
+            print("{}: {}".format(self.event_generator.user.sensor_id, self.event_generator.description()))

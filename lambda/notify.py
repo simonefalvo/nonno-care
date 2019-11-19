@@ -1,7 +1,4 @@
 import os
-import smtplib
-import ssl
-import logging
 
 import boto3
 from botocore.exceptions import ClientError
@@ -18,7 +15,7 @@ def handler(event, context):
         longitude = attributes["longitude"]["Value"]
         heart_rate = int(attributes["heart_rate"]["Value"])
 
-        print(message)
+        #print(message)
 
         # store accident data
         table = boto3.resource('dynamodb').Table(os.environ['ACCIDENT_DATA_TABLE'])
@@ -34,9 +31,8 @@ def handler(event, context):
 
         # send email to subscribers
         email = get_subscribers(sensor_id)
-        print("Email: ", email)
-        send_smtp(email, message)
-        #send_email(email, message)
+        #print("Email: ", email)
+        send_email(email, message)
 
         print("JOB_ID {}, RequestId: {}"
               .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
@@ -55,19 +51,8 @@ def get_subscribers(sensor_id):
 
 
 def send_email(recipient, message):
-    # Replace sender@example.com with your "From" address.
-    # This address must be verified with Amazon SES.
     sender = "Nonno Care <nonnocare.notify@gmail.com>"
-
-    # Specify a configuration set. If you do not want to use a configuration
-    # set, comment the following variable, and the
-    # ConfigurationSetName=CONFIGURATION_SET argument below.
-    #CONFIGURATION_SET = "ConfigSet"
-
-    # If necessary, replace us-west-2 with the AWS Region you're using for Amazon SES.
-    aws_region = "eu-west-3"
-
-    # The subject line for the email.
+    aws_region = "eu-central-1"
     subject = "nonno ALERT"
 
     # The email body for recipients with non-HTML email clients.
@@ -77,14 +62,14 @@ def send_email(recipient, message):
     body_html = """<html>
     <head></head>
     <body>
-      <h1>Amazon SES Test (SDK for Python)</h1>
+      <h1>{}</h1>
       <p>This email was sent with
         <a href='https://aws.amazon.com/ses/'>Amazon SES</a> using the
         <a href='https://aws.amazon.com/sdk-for-python/'>
           AWS SDK for Python (Boto)</a>.</p>
     </body>
     </html>
-                """
+                """.format(message)
 
     # The character encoding for the email.
     charset = "UTF-8"
@@ -118,25 +103,9 @@ def send_email(recipient, message):
                 },
             },
             Source=sender,
-            # If you are not using a configuration set, comment or delete the
-            # following line
-            #ConfigurationSetName=CONFIGURATION_SET,
         )
     # Display an error if something goes wrong.
     except ClientError as e:
         print(e.response['Error']['Message'])
     else:
-        print("Email sent! Message ID:"),
-        print(response['MessageId'])
-
-
-def send_smtp(to_address, message):
-    from_address = "nonnocare.notify@gmail.com"
-    password = "NonCar99"
-    email = """Subject: NONNO ALERT 
-
-    {}"""
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        server.login(from_address, password)
-        server.sendmail(from_address, to_address, email.format(message))
+        print("Email sent! Message ID:".format(response['MessageId']))

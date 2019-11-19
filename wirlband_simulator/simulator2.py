@@ -49,7 +49,7 @@ class UserThread(Thread):
 
     def run(self):
         # random start
-        start_delay = random.uniform(0, max(30.0, K * SAMPLE_PERIOD))
+        start_delay = random.uniform(0, max(0.0, K * SAMPLE_PERIOD))
         time.sleep(start_delay)
 
         # register new user
@@ -57,8 +57,7 @@ class UserThread(Thread):
         register_user(user)
 
         queue_url = cf.stack_output(STACK_NAME, "SQSQueue")
-        # queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-1OX8RNU2Z1KIV"
-
+        #queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-976QBGKN1KC9"
         periodic_event_gen = EventGenerator(user)
         sos_event_gen = SosEventGenerator(user)
         activity_event_gen = ActivityEventGenerator(user, "./event_gen/activities")
@@ -72,13 +71,13 @@ class UserThread(Thread):
             user.next_position(SAMPLE_PERIOD)
             pe = periodic_event_gen.next()
             sqs.send_message(queue_url, pe)
-            print("Periodic event user {}".format(user.sensor_id))
+            print("{}: Periodic event".format(user.sensor_id))
             time.sleep(K * SAMPLE_PERIOD)
 
 
 def register_user(user):
     table_name = cf.stack_output(STACK_NAME, "UserDataTable")
-    # table_name = "nonno-stack-UserDataTable-1KLEZX68XV1QN"
+    #table_name = "nonno-stack-UserDataTable-13JTNWIVLYER5"
     # Store user data
     return dynamodb.put_item(table_name=table_name,
                              item={
@@ -95,8 +94,8 @@ def register_user(user):
 
 def main():
     sensors_number = int(sys.argv[1])
-    for sensors_id in range(1, sensors_number):
-        UserThread(sensors_id).start()
+    for sensor_id in range(1, sensors_number + 1):
+        UserThread(sensor_id).start()
 
 
 if __name__ == '__main__':

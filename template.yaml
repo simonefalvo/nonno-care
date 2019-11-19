@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Example of processing messages on an SQS queue with Lambda
+Description: My own serverless application
 
 Resources:
   pandasLayer:
@@ -17,7 +17,7 @@ Resources:
   sagemakerEndpoint:
     Type: AWS::SageMaker::Endpoint
     Properties:
-      EndpointConfigName: xgboost-fall-v2
+      EndpointConfigName: xgboost-fall-v1
       EndpointName: fall-model-endpoint
 
   eventProcessor:
@@ -112,7 +112,8 @@ Resources:
         Variables:
           SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
       Layers:
-        - arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
+        #- arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
+        - arn:aws:lambda:eu-central-1:292169987271:layer:AWSLambda-Python36-SciPy1x:2
         - !Ref pandasLayer
       Policies:
         - AmazonSNSFullAccess
@@ -136,6 +137,7 @@ Resources:
           ACCIDENT_DATA_TABLE: !Ref AccidentDataTable
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSESFullAccess
       Events:
         freqEvent:
           Type: SNS
@@ -157,7 +159,7 @@ Resources:
       KeySchema:
         - AttributeName: sensor_id
           KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
+      BillingMode: PAY_PER_REQUEST  # on-demand r/w throughput
 
   SensorDataTable:
     Type: AWS::DynamoDB::Table
@@ -172,7 +174,7 @@ Resources:
           KeyType: HASH
         - AttributeName: timestamp
           KeyType: RANGE
-      BillingMode: PAY_PER_REQUEST
+      BillingMode: PAY_PER_REQUEST  # on-demand r/w throughput
 
   AccidentDataTable:
     Type: AWS::DynamoDB::Table
