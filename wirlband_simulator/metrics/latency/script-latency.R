@@ -1,16 +1,6 @@
 
 library("dplyr")
-associate_timestamp <- function(id, data){
-  result <- matrix(nrow=0, ncol = 3)
-  for(my_id in id){
-    # seleziono la riga di interesse
-    ts <- data[grepl(my_id, data$X.message), ][1,1]
-    ts
-    result <- rbind(result, c(ts, my_id ,NA))
-    result
-  }
-  return(result)
-}
+
 
 list_job_id <- function(job_df){
   
@@ -94,38 +84,44 @@ generate_table <- function(file_name){
   return(result_df)
 }
 
+save_in_one_file <-function(all_data, file_out){
+  all_data <- as.data.frame(all_data)
+  colnames(all_data) <- c("TS", "Job_ID", "Duration")
+  
+  all_data$Duration <- as.double(as.character(all_data$Duration))
+  all_data <- data.frame(lapply(all_data, as.character), stringsAsFactors=FALSE)
+  all_data$Duration <- as.double(as.character(all_data$Duration))
+  
+  
+  # somma le latenze degli stessi Job_ID e mantiene TS più grande
+  
+  file_result <- matrix(nrow= 0, ncol=3)
+  colnames(file_result) <- c("TS", "Job_ID", "Duration")
+  
+  job_id <- all_data$Job_ID
+  
+  for(job in job_id){
+    
+    data <- all_data[grepl(job, all_data$Job_ID), ]
+    file_result <- rbind(file_result, c(max(data$TS), job, sum(data$Duration)))
+    
+  }
+  
+  write.csv(file_result, file_out)
+}
+
+
+
+
 file_name = "lat_100_notify.csv"
 file_in = paste0("./data/", file_name)
 file_out = paste0("./out/", file_name)
 
-t1 <- generate_table(file_in)
+t1 <- generate_table("lat_100_notify.csv")
+t2 <- generate_table("lat_100_checkFall.csv")
 
-all_data <- t1
-
+#all_data <- t1
+all_data <- rbind(t1, t2)
 
 all_data <- all_data[,-3] #rimuovo la colonna dei request-id non mi serve piu 
-
-
-all_data <- as.data.frame(all_data)
-colnames(all_data) <- c("TS", "Job_ID", "Duration")
-
-all_data$Duration <- as.double(as.character(all_data$Duration))
-all_data <- data.frame(lapply(all_data, as.character), stringsAsFactors=FALSE)
-all_data$Duration <- as.double(as.character(all_data$Duration))
-
-
-# somma le latenze degli stessi Job_ID e mantiene TS più piccolo
-
-file_result <- matrix(nrow= 0, ncol=3)
-colnames(file_result) <- c("TS", "Job_ID", "Duration")
-
-job_id <- all_data$Job_ID
-
-for(job in job_id){
-  
-  data <- all_data[grepl(job, all_data$Job_ID), ]
-  file_result <- rbind(file_result, c(max(data$TS), job, sum(data$Duration)))
-  
-}
-
-write.csv(file_result, file_out)
+  save_in_one_file(all_data, file_out)
