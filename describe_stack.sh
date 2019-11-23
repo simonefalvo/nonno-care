@@ -2,5 +2,5 @@
 
 aws cloudformation describe-stacks \
     --stack-name nonno-stack \
-    --region eu-west-3 \
+    --region eu-central-1 \
     --query "Stacks[].Outputs"

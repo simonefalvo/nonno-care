@@ -83,7 +83,7 @@ def handler(event, context):
         # print(result)
 
         result = round(float(result))
-        print(result)
+        #print(result)
 
         if result == 0:
             print("JOB_ID {}, RequestId: {}"

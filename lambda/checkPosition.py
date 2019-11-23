@@ -22,7 +22,7 @@ def handler(event, context):
             }
         )
         item = response['Item']
-        print("Item:\n", item)
+        #print("Item:\n", item)
 
         safety_lat = float(item['safety_latitude'])
         safety_long = float(item['safety_longitude'])
@@ -30,7 +30,7 @@ def handler(event, context):
 
         # check if current position is inside the safety zone
         if distance(safety_lat, safety_long, latitude, longitude) > safety_radius:
-            print("WARNING: Outside the safety zone!")
+            #print("WARNING: Outside the safety zone!")
             # Create an SNS client
             sns = boto3.client('sns')
 
@@ -68,7 +68,7 @@ def handler(event, context):
             # Print out the response
             print(response)
         else:
-            print("Dentro la safety zone")
+            #print("Dentro la safety zone")
             print("JOB_ID {}, RequestId: {}"
                   .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
 

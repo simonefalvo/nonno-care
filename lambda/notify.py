@@ -15,8 +15,6 @@ def handler(event, context):
         longitude = attributes["longitude"]["Value"]
         heart_rate = int(attributes["heart_rate"]["Value"])
 
-        #print(message)
-
         # store accident data
         table = boto3.resource('dynamodb').Table(os.environ['ACCIDENT_DATA_TABLE'])
         table.put_item(

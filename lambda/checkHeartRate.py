@@ -1,4 +1,3 @@
-import time
 import boto3
 import os
 
@@ -8,8 +7,7 @@ ALPHA = 3/2
 def handler(event, context):
     for record in event['Records']:
         attributes = record["Sns"]["MessageAttributes"]
-        print(attributes)
-        print(time.ctime(float(attributes["timestamp"]["Value"])))
+        #print(attributes)
 
         sensor_id = attributes["sensor_id"]["Value"]
         timestamp = attributes["timestamp"]["Value"]
@@ -27,13 +25,12 @@ def handler(event, context):
             }
         )
         item = response['Item']
-        print("Item:\n", item)
+        #print("Item:\n", item)
 
         avg_hrate = int(item['avg_hrate'])
         var_hrate = int(item['var_hrate'])
 
         if not avg_hrate - ALPHA * var_hrate <= heart_rate <= avg_hrate + ALPHA * var_hrate:
-            print("WARNING: Abnormal Heartbeats")
             # Create an SNS client
             sns = boto3.client('sns')
 

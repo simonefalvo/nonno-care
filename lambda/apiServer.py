@@ -36,7 +36,7 @@ def handler(event, context):
         response_body = json.dumps({
                 "message": operations[operation](event_body['payload'])
             })
-        # print(response_body)
+        print(response_body)
     else:
         status_code = 400
         response_body = json.dumps({
