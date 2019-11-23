@@ -34,50 +34,57 @@ AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
 # AVG_SOS_PERIOD = 120  # seconds
 # AVG_ACTIVITY_PERIOD = 120  # seconds
 
-K = 1/32  # time compression
+K = 1/4  # time compression
 
 
 class UserThread(Thread):
 
-    def __init__(self, sensor_id):
+    def __init__(self, sensor_id, table, queue):
         Thread.__init__(self)
         self.__sensor_id = sensor_id
+        self.__table = table
+        self.__queue = queue
 
     @property
     def sensor_id(self):
         return self.__sensor_id
 
+    @property
+    def table(self):
+        return self.__table
+
+    @property
+    def queue(self):
+        return self.__queue
+
     def run(self):
         # random start
-        start_delay = random.uniform(0, max(0.0, K * SAMPLE_PERIOD))
+        start_delay = random.uniform(0, max(30.0, K * SAMPLE_PERIOD))
         time.sleep(start_delay)
 
         # register new user
         user = User(self.sensor_id, "Pumero", "nonnocare.notify@gmail.com")
-        register_user(user)
+        register_user(user, self.table)
 
-        queue_url = cf.stack_output(STACK_NAME, "SQSQueue")
-        #queue_url = "https://sqs.eu-west-3.amazonaws.com/043090642581/nonno-stack-SQSQueue-976QBGKN1KC9"
         periodic_event_gen = EventGenerator(user)
         sos_event_gen = SosEventGenerator(user)
-        activity_event_gen = ActivityEventGenerator(user, "./event_gen/activities")
+        activity_event_gen = ActivityEventGenerator(user, "./event_gen/single_activity")
         fall_event_gen = ActivityEventGenerator(user, "./event_gen/falls")
 
-        EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, queue_url).start()
-        EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, queue_url).start()
-        EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, queue_url).start()
+        sqs_conn = sqs.get_connection()
+        EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, sqs_conn, self.queue).start()
+        EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, sqs_conn, self.queue).start()
+        EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, sqs_conn, self.queue).start()
 
         while True:
             user.next_position(SAMPLE_PERIOD)
             pe = periodic_event_gen.next()
-            sqs.send_message(queue_url, pe)
+            sqs.send_message(sqs_conn, self.queue, pe)
             print("{}: Periodic event".format(user.sensor_id))
             time.sleep(K * SAMPLE_PERIOD)
 
 
-def register_user(user):
-    table_name = cf.stack_output(STACK_NAME, "UserDataTable")
-    #table_name = "nonno-stack-UserDataTable-13JTNWIVLYER5"
+def register_user(user, table_name):
     # Store user data
     return dynamodb.put_item(table_name=table_name,
                              item={
@@ -94,8 +101,10 @@ def register_user(user):
 
 def main():
     sensors_number = int(sys.argv[1])
+    queue_url = cf.stack_output(STACK_NAME, "SQSQueue")
+    table_name = cf.stack_output(STACK_NAME, "UserDataTable")
     for sensor_id in range(1, sensors_number + 1):
-        UserThread(sensor_id).start()
+        UserThread(sensor_id, table_name, queue_url).start()
 
 
 if __name__ == '__main__':

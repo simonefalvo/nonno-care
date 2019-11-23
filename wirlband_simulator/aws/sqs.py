@@ -1,13 +1,14 @@
 import boto3
 
 
-def send_message(queue_url, attributes):
-
+def get_connection():
     # Create SQS client
-    sqs = boto3.client('sqs')
+    return boto3.client('sqs')
 
+
+def send_message(connection, queue_url, attributes):
     # Send message to SQS queue
-    response = sqs.send_message(
+    response = connection.send_message(
         QueueUrl=queue_url,
         MessageAttributes=attributes,
         MessageBody=(

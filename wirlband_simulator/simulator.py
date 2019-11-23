@@ -45,14 +45,15 @@ def main():
     activity_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/activities")
     fall_event_gen = ActivityEventGenerator(user, "./wirlband_simulator/event_gen/falls")
 
-    EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, queue_url).start()
-    EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, queue_url).start()
-    EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, queue_url).start()
+    sqs_conn = sqs.get_connection()
+    EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, sqs_conn, queue_url).start()
+    EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, sqs_conn, queue_url).start()
+    EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, sqs_conn, queue_url).start()
 
     while True:
         user.next_position(SAMPLE_PERIOD)
         pe = periodic_event_gen.next()
-        sqs.send_message(queue_url, pe)
+        sqs.send_message(sqs_conn, queue_url, pe)
         print("Periodic event user {}".format(user.sensor_id))
         time.sleep(K * SAMPLE_PERIOD)
 
