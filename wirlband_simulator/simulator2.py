@@ -69,17 +69,18 @@ class UserThread(Thread):
         periodic_event_gen = EventGenerator(user)
         sos_event_gen = SosEventGenerator(user)
         activity_event_gen = ActivityEventGenerator(user, "./event_gen/single_activity")
-        fall_event_gen = ActivityEventGenerator(user, "./event_gen/falls")
+        fall_event_gen = ActivityEventGenerator(user, "./event_gen/falls1")
 
         sqs_conn = sqs.get_connection()
         EventSenderThread(sos_event_gen, K * AVG_SOS_PERIOD, sqs_conn, self.queue).start()
         EventSenderThread(activity_event_gen, K * AVG_ACTIVITY_PERIOD, sqs_conn, self.queue).start()
         EventSenderThread(fall_event_gen, K * AVG_FALL_PERIOD, sqs_conn, self.queue).start()
 
+        sqs_conn_p = sqs.get_connection()
         while True:
             user.next_position(SAMPLE_PERIOD)
             pe = periodic_event_gen.next()
-            sqs.send_message(sqs_conn, self.queue, pe)
+            sqs.send_message(sqs_conn_p, self.queue, pe)
             print("{}: Periodic event".format(user.sensor_id))
             time.sleep(K * SAMPLE_PERIOD)
 
@@ -100,11 +101,12 @@ def register_user(user, table_name):
 
 
 def main():
-    sensors_number = int(sys.argv[1])
+    sim_number = int(sys.argv[1])
+    sensors_number = int(sys.argv[2])
     queue_url = cf.stack_output(STACK_NAME, "SQSQueue")
     table_name = cf.stack_output(STACK_NAME, "UserDataTable")
     for sensor_id in range(1, sensors_number + 1):
-        UserThread(sensor_id, table_name, queue_url).start()
+        UserThread(sensor_id + sim_number * sensors_number, table_name, queue_url).start()
 
 
 if __name__ == '__main__':

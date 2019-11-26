@@ -7,7 +7,8 @@ MAX_FREQ = 100
 def handler(event, context):
     # Get the service resource.
     dynamodb = boto3.resource('dynamodb')
-    print(len(event['Records']))
+
+    batch_size = len(event['Records'])
 
     for record in event['Records']:
         attributes = record["messageAttributes"]
@@ -56,8 +57,8 @@ def handler(event, context):
 
         table.put_item(Item=item)
 
-        print("JOB_ID {}, RequestId: {}"
-              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+        print("JOB_ID {}, RequestId: {}, BatchSize: {}"
+              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id, batch_size))
 
 
 # TODO: creare un layer
