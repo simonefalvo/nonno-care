@@ -37,6 +37,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
+      Timeout: 15
       Events:
         nonnoSqsEvent:
           Type: SQS
@@ -138,6 +139,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSESFullAccess
+      Timeout: 10
       Events:
         freqEvent:
           Type: SNS
@@ -149,6 +151,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       ReceiveMessageWaitTimeSeconds: 20  # enable long polling
+      VisibilityTimeout: 90  # 6 * eventProcessor Timeout
 
   UserDataTable:
     Type: AWS::DynamoDB::Table
