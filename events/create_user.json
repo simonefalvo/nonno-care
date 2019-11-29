@@ -1,0 +1,15 @@
+{
+    "operation": "create",
+    "table": "users",
+    "payload": {
+        "Item": {
+            "sensor_id": "10001",
+            "safety_latitude": "41.854556",
+            "safety_longitude": "12.623750",
+            "safety_radius": "1",
+            "avg_hrate": "77",
+            "var_hrate": "15",
+            "email": "nonnocare.notify@gmail.com"
+        }
+    }
+}

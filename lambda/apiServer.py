@@ -14,17 +14,19 @@ def handler(event, context):
 
     event_body = json.loads(event['body'])
     print(event_body)
-    table = event_body['table']
     operation = event_body['operation']
 
-    tables = {
-        'sensors': os.environ['SENSOR_DATA_TABLE'],
-        'accidents': os.environ['ACCIDENT_DATA_TABLE']
-    }
-
-    dynamo = boto3.resource('dynamodb').Table(tables[table])
+    if 'table' in event_body:
+        table = event_body['table']
+        tables = {
+            'users': os.environ['USER_DATA_TABLE'],
+            'sensors': os.environ['SENSOR_DATA_TABLE'],
+            'accidents': os.environ['ACCIDENT_DATA_TABLE']
+        }
+        dynamo = boto3.resource('dynamodb').Table(tables[table])
 
     operations = {
+        'create': lambda x: dynamo.put_item(**x),
         'history': lambda x: dynamo.query(**x),
         'accidents': lambda x: dynamo.query(**x),
         'echo': lambda x: x,
