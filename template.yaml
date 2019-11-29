@@ -139,7 +139,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSESFullAccess
-      Timeout: 10
+      Timeout: 15
       Events:
         freqEvent:
           Type: SNS
@@ -177,6 +177,9 @@ Resources:
           KeyType: HASH
         - AttributeName: timestamp
           KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: exp_date
+        Enabled: true
       BillingMode: PAY_PER_REQUEST  # on-demand r/w throughput
 
   AccidentDataTable:

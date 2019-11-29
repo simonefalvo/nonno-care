@@ -2,6 +2,7 @@ import boto3
 import os
 
 MAX_FREQ = 100
+TTL = 604800  # seconds in a week
 
 
 def handler(event, context):
@@ -25,7 +26,8 @@ def handler(event, context):
             'timestamp': timestamp,
             'latitude': latitude,
             'longitude': longitude,
-            'heart_rate': heart_rate
+            'heart_rate': heart_rate,
+            'exp_date': timestamp + TTL
         }
 
         message = "Controllo posizione"
