@@ -26,7 +26,7 @@ def handler(event, context):
             'latitude': latitude,
             'longitude': longitude,
             'heart_rate': heart_rate,
-            'exp_date': timestamp + os.environ['TTL']
+            'exp_date': str(float(timestamp) + float(os.environ['TTL']))
         }
 
         message = "Controllo posizione"
