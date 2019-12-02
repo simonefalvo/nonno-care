@@ -29,7 +29,7 @@ througput_table <- function(data_frame, delta){
   end_ts = max(tmp_df[,1])
   
   result <- matrix(nrow= 0, ncol=2)
-  colnames(result) <- c("TS", "N Execution")
+  colnames(result) <- c("TS", "Throughout")
   
   while(current_ts < end_ts){
     row_selected = tmp_df[which(tmp_df$TS >= current_ts &
@@ -37,7 +37,7 @@ througput_table <- function(data_frame, delta){
                                 arr.ind = TRUE),] 
     
     
-    result <-rbind(result, c(current_ts, NROW(row_selected)))
+    result <-rbind(result, c(current_ts, NROW(row_selected) / delta))
     
     current_ts = current_ts + delta
   }

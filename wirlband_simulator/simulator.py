@@ -2,6 +2,7 @@ import sys
 import time
 import random
 
+import boto3
 from User import User
 from event_gen.EventGenerator import EventGenerator
 from event_gen.ActivityEventGenerator import ActivityEventGenerator

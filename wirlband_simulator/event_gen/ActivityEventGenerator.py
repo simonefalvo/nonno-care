@@ -47,6 +47,7 @@ class ActivityEventGenerator(EventGenerator):
         # open and read file
         with open(self.activity_file) as f:
             activity_data = f.read() + '\n'
+        f.close()
         event = self.build_event()
         event['fall_data'] = {
                 'DataType': 'String',
