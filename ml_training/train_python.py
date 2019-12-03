@@ -12,7 +12,6 @@ import numpy as np
 
 def main():
 
-
     train = pd.read_csv('./fall_train.csv', names=list(range(37)), index_col=False)
     test = pd.read_csv('./fall_test.csv', names=list(range(37)), index_col=False)
 

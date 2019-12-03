@@ -106,7 +106,7 @@ def create_role_sagemaker():
                         "Effect": "Allow",
                         "Action": "s3:*",
                         "Resource": [
-                            "arn:aws:s3:::sagemaker-us-east-1-043090642581",
+                            "arn:aws:s3:::*",
                             "arn:aws:s3:::*/*",
                             "arn:aws:s3:*:*:job/*"
                         ]
