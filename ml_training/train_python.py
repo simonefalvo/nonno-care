@@ -34,18 +34,15 @@ def main():
     #TODO
     bucket_name = 'sagemaker-eu-central-1-19111535'
     training_file_key = 'model_data/fall_train.csv'
-    validation_file_key = 'model_data/fall_validation.csv'
     test_file_key = 'model_data/fall_test.csv'
 
     s3_model_output_location = r's3://{0}/model_data/model'.format(bucket_name)
     s3_training_file_location = r's3://{0}/{1}'.format(bucket_name, training_file_key)
-    s3_validation_file_location = r's3://{0}/{1}'.format(bucket_name, validation_file_key)
     s3_test_file_location = r's3://{0}/{1}'.format(bucket_name, test_file_key)
 
 
     print(s3_model_output_location)
     print(s3_training_file_location)
-    print(s3_validation_file_location)
     print(s3_test_file_location)
 
 
@@ -62,7 +59,6 @@ def main():
 
 
     write_to_s3('fall_train.csv', bucket_name, training_file_key)
-    write_to_s3('fall_validation.csv', bucket_name, validation_file_key)
     write_to_s3('fall_test.csv', bucket_name, test_file_key)
 
 
@@ -115,10 +111,7 @@ def main():
 
     # content type can be libsvm or csv for XGBoost
     training_input_config = sagemaker.session.s3_input(s3_data=s3_training_file_location, content_type="csv")
-    validation_input_config = sagemaker.session.s3_input(s3_data=s3_validation_file_location, content_type="csv")
-
     print(training_input_config.config)
-    print(validation_input_config.config)
 
 
     # Train the model
@@ -126,7 +119,7 @@ def main():
     # XGBoost supports "train", "validation" channels
     # Reference: Supported channels by algorithm
     #   https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-algo-docker-registry-paths.html
-    estimator.fit({'train': training_input_config, 'validation': validation_input_config})
+    estimator.fit({'train': training_input_config})
 
 
 
