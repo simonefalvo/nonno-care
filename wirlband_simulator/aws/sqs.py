@@ -17,3 +17,16 @@ def send_message(connection, queue_url, attributes):
     )
 
     return response
+
+def send_message(sqs, queue_url, attributes):
+
+    # Send message to SQS queue
+    response = sqs.send_message(
+        QueueUrl=queue_url,
+        MessageAttributes=attributes,
+        MessageBody=(
+            'simulated event'
+        )
+    )
+
+    return response

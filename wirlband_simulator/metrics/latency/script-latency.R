@@ -55,7 +55,7 @@ generate_table <- function(file_name){
   
   # ricavo req_id e durata per il job_id
   for(request in reqs_id){
-    request <- reqs_id[i]
+    
     # seleziono la riga di interesse
     row <- report_df[grepl(request, report_df[["X.message"]]), ]
     
@@ -99,6 +99,7 @@ save_in_one_file <-function(all_data, file_out){
   colnames(file_result) <- c("TS", "Job_ID", "Duration")
   
   job_id <- all_data$Job_ID
+  job_id <- unique(job_id)
   
   for(job in job_id){
     
@@ -108,20 +109,25 @@ save_in_one_file <-function(all_data, file_out){
   }
   
   write.csv(file_result, file_out)
+  return(file_result)
 }
 
 
 
 
-file_name = "lat_100_notify.csv"
+file_name = "lat_500.csv"
 file_in = paste0("./data/", file_name)
 file_out = paste0("./out/", file_name)
 
-t1 <- generate_table("lat_100_notify.csv")
-t2 <- generate_table("lat_100_checkFall.csv")
+t1 <- generate_table("./data/lat_500_notify.csv")
+t2 <- generate_table("./data/lat_500_checkFall.csv")
+t3 <- generate_table("./data/lat_500_checkHeartRate.csv")
+t4 <- generate_table("./data/lat_500_checkPosition.csv")
+t5 <- generate_table("./data/lat_500_eventProcessor.csv")
+
 
 #all_data <- t1
-all_data <- rbind(t1, t2)
-
+all_data <- rbind(t1, t2,t4, t5)
 all_data <- all_data[,-3] #rimuovo la colonna dei request-id non mi serve piu 
-  save_in_one_file(all_data, file_out)
+
+save_in_one_file(all_data, file_out)
