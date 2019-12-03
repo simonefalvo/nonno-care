@@ -40,7 +40,7 @@ througput_table <- function(file_name, delta){
 }
 file_name = "thr_100_notify.csv"
 file_in = paste0("./data/", file_name)
-file_out = paste0("./out/", file_name)
+file_out = paste0("./data_out/", file_name)
 
 data = througput_table(file_in, delta= 15)# delta in secondi
 
