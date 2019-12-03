@@ -130,7 +130,7 @@ def main():
     estimator.fit({'train': training_input_config, 'validation': validation_input_config})
 
 
-    
+
 
 if __name__ == '__main__':
     main()
