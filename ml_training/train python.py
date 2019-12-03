@@ -75,7 +75,7 @@ def main():
 
     role = sagemaker_role.create_role_sagemaker()
     # chiamata di creazione del ruolo e' asincrona
-    sleep(10)
+    sleep(20)
 
     # Build Model
     sess = sagemaker.Session()
@@ -130,38 +130,7 @@ def main():
     estimator.fit({'train': training_input_config, 'validation': validation_input_config})
 
 
-    # Deploy Model
-
-    # Ref: http://sagemaker.readthedocs.io/en/latest/estimators.html
-    predictor = estimator.deploy(initial_instance_count=1,
-                                 instance_type='ml.m5.large',
-                                 endpoint_name='xgboost-fall-v1')
-
-
-    # Run Predictions
-
-    predictor.content_type = 'text/csv'
-    predictor.serializer = csv_serializer
-    predictor.deserializer = None
-
-
-    # calcola gli errori del modello
-    rate_fall = 0
-    rate_no_fall = 0
-    for i in range(1, len(test_features)):
-        pred = predictor.predict([test_features[i]])
-        pred = round(float(pred))
-        if pred == test_labels[i]:
-            if pred == 0:
-                rate_no_fall = rate_no_fall + 1
-            else:
-                rate_fall = rate_fall + 1
-
-    print(rate_fall)
-    print(rate_no_fall)
-    print(rate_fall+rate_no_fall)
-    print(len(test_features))
-
+    
 
 if __name__ == '__main__':
     main()

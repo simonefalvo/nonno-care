@@ -9,6 +9,9 @@ def create_role_sagemaker():
 
     path = '/'
     role_name = 'AmazonSageMaker-ExecutionRole-20191202T162997'
+    arn_sagemaker_full_access = 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+    policy_execution = 'AmazonSageMaker-ExecutionPolicy'
+    policy_s3 = 'S3-Sagemaker'
     description = 'A test Role'
 
     try:
@@ -48,7 +51,7 @@ def create_role_sagemaker():
 
         response = iam.attach_role_policy(
             RoleName=role_name,
-            PolicyArn='arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+            PolicyArn=arn_sagemaker_full_access
         )
 
         policy_execution_role = \
@@ -71,7 +74,7 @@ def create_role_sagemaker():
             }
 
         response_execution_policy = iam.create_policy(
-            PolicyName="AmazonSageMaker-ExecutionPolicy",
+            PolicyName=policy_execution,
             Path=path,
             PolicyDocument=json.dumps(policy_execution_role)
         )
@@ -112,7 +115,7 @@ def create_role_sagemaker():
             }
 
         response_execution_policy_s3 = iam.create_policy(
-            PolicyName="S3-Sagemaker",
+            PolicyName=policy_s3,
             Path=path,
             PolicyDocument=json.dumps(policy_s3_sagemaker)
         )
@@ -126,8 +129,6 @@ def create_role_sagemaker():
 
     except Exception as e:
         print(e)
-
-
 
 
 if __name__ == '__main__':
