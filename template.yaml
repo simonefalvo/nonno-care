@@ -116,7 +116,7 @@ Resources:
           SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
       Layers:
         #- arn:aws:lambda:eu-west-3:959311844005:layer:AWSLambda-Python36-SciPy1x:2
-        - arn:aws:lambda:eu-central-1:292169987271:layer:AWSLambda-Python36-SciPy1x:2
+        - !Sub "arn:aws:lambda:${AWS::Region}:292169987271:layer:AWSLambda-Python36-SciPy1x:2"
         - !Ref pandasLayer
       Policies:
         - AmazonSNSFullAccess
