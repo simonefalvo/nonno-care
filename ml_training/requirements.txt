@@ -1,0 +1,4 @@
+sagemaker
+pandas
+numpy
+boto3

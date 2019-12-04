@@ -1,20 +1,16 @@
 from time import sleep
 
 from sagemaker.amazon.amazon_estimator import get_image_uri
-from sagemaker.predictor import csv_serializer
 import sagemaker_role
 import pandas as pd
 import boto3
-import os
 import sagemaker
 import numpy as np
 
 
 def main():
-
     train = pd.read_csv('./fall_train.csv', names=list(range(37)), index_col=False)
     test = pd.read_csv('./fall_test.csv', names=list(range(37)), index_col=False)
-
 
     #
     # Training and Validation Set
@@ -31,7 +27,7 @@ def main():
     test_features = np.array(test.iloc[:, 1:]).astype("float32")
 
     # Upload Data to S3
-    #TODO
+    # TODO: passa nome bucket come parametro
     bucket_name = 'sagemaker-eu-central-1-19111535'
     training_file_key = 'model_data/fall_train.csv'
     test_file_key = 'model_data/fall_test.csv'
@@ -40,11 +36,9 @@ def main():
     s3_training_file_location = r's3://{0}/{1}'.format(bucket_name, training_file_key)
     s3_test_file_location = r's3://{0}/{1}'.format(bucket_name, test_file_key)
 
-
     print(s3_model_output_location)
     print(s3_training_file_location)
     print(s3_test_file_location)
-
 
     # Write and Reading from S3 is just as easy
     # files are referred as objects in S3.
@@ -57,10 +51,8 @@ def main():
         with open(filename, 'rb') as f:  # Read in binary mode
             return boto3.Session().resource('s3').Bucket(bucket).Object(key).upload_fileobj(f)
 
-
     write_to_s3('fall_train.csv', bucket_name, training_file_key)
     write_to_s3('fall_test.csv', bucket_name, test_file_key)
-
 
     #
     # Training Algorithm Docker Image
@@ -90,9 +82,7 @@ def main():
                                               sagemaker_session=sess,
                                               base_job_name='xgboost-fall-v1')
 
-
     # In[12]:
-
 
     # Specify hyper parameters that appropriate for the training algorithm
     # XGBoost Training Parameter Reference:
@@ -102,17 +92,13 @@ def main():
     estimator.set_hyperparameters(max_depth=6, objective="reg:linear",
                                   eta=0.12, subsample=0.73, num_round=200)
 
-
     estimator.hyperparameters()
 
-
     # Specify Training Data Location and Optionally, Validation Data Location
-
 
     # content type can be libsvm or csv for XGBoost
     training_input_config = sagemaker.session.s3_input(s3_data=s3_training_file_location, content_type="csv")
     print(training_input_config.config)
-
 
     # Train the model
 
@@ -120,8 +106,6 @@ def main():
     # Reference: Supported channels by algorithm
     #   https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-algo-docker-registry-paths.html
     estimator.fit({'train': training_input_config})
-
-
 
 
 if __name__ == '__main__':
