@@ -35,9 +35,9 @@ aggregate_data <- function(file_name, delta){
   
 }
 
-file_name <- "./data_out/lat_2000.csv"
+file_name <- "./data_out/lat_1000.csv"
 
 
-out_data <- aggregate_data(file_name, delta=1)
-write.csv(out_data , "./data_out/lat_2000_reduced.csv")
+out_data <- aggregate_data(file_name, delta=5)
+write.csv(out_data , "./data_out/lat_1000_reduced.csv")
 
