@@ -20,6 +20,25 @@ Resources:
       EndpointConfigName: xgboost-fall-v1
       EndpointName: fall-model-endpoint
 
+  apiServer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: apiServer.handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          USER_DATA_TABLE: !Ref UserDataTable
+          SENSOR_DATA_TABLE: !Ref SensorDataTable
+          ACCIDENT_DATA_TABLE: !Ref AccidentDataTable
+      Policies: AmazonDynamoDBFullAccess
+      Events:
+        HttpPost:
+          Type: Api
+          Properties:
+            Path: '/DynamoDBManager'
+            Method: post
+
   eventProcessor:
     Type: AWS::Serverless::Function
     Properties:
@@ -43,27 +62,8 @@ Resources:
         nonnoSqsEvent:
           Type: SQS
           Properties:
-            Queue: !GetAtt SQSQueue.Arn
+            Queue: !GetAtt IngestionSQSQueue.Arn
             BatchSize: 10
-
-  apiServer:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambda/
-      Handler: apiServer.handler
-      Runtime: python3.6
-      Environment:
-        Variables:
-          USER_DATA_TABLE: !Ref UserDataTable
-          SENSOR_DATA_TABLE: !Ref SensorDataTable
-          ACCIDENT_DATA_TABLE: !Ref AccidentDataTable
-      Policies: AmazonDynamoDBFullAccess
-      Events:
-        HttpPost:
-          Type: Api
-          Properties:
-            Path: '/DynamoDBManager'
-            Method: post
 
   checkPosition:
     Type: AWS::Serverless::Function
@@ -78,12 +78,13 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
+      Timeout: 8
       Events:
         freqEvent:
-          Type: SNS
+          Type: SQS
           Properties:
-            Topic:
-              Ref: SNSTopicPosition
+            Queue: !GetAtt PositionSQSQueue.Arn
+            BatchSize: 10
 
   checkHeartRate:
     Type: AWS::Serverless::Function
@@ -98,12 +99,13 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSNSFullAccess
+      Timeout: 8
       Events:
-        freqEvent:
-          Type: SNS
+        checkHeartRatefreqEvent:
+          Type: SQS
           Properties:
-            Topic:
-              Ref: SNSTopicHeartRate
+            Queue: !GetAtt HeartRateSQSQueue.Arn
+            BatchSize: 10
 
   checkFall:
     Type: AWS::Serverless::Function
@@ -149,11 +151,75 @@ Resources:
             Topic:
               Ref: SNSTopicNotify
 
-  SQSQueue:
+  IngestionSQSQueue:
     Type: AWS::SQS::Queue
     Properties:
       ReceiveMessageWaitTimeSeconds: 20  # enable long polling
       VisibilityTimeout: 90  # 6 * eventProcessor Timeout
+
+  PositionSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: 20  # enable long polling
+      VisibilityTimeout: 50
+
+  HeartRateSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: 20  # enable long polling
+      VisibilityTimeout: 50
+
+  FallSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: 20  # enable long polling
+      VisibilityTimeout: 50
+
+  NotifySQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: 20  # enable long polling
+      VisibilityTimeout: 50
+
+  PositionSendMessagePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: PositionSendMessagePolicy
+        Statement:
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: '*'
+            Action: sqs:SendMessage
+            Resource:
+              - !GetAtt PositionSQSQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  - !Ref SNSTopicPosition
+      Queues:
+        - !Ref PositionSQSQueue
+
+  HeartRateSendMessagePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: HeartRateSendMessagePolicy
+        Statement:
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: '*'
+            Action: sqs:SendMessage
+            Resource:
+              - !GetAtt HeartRateSQSQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  - !Ref SNSTopicHeartRate
+      Queues:
+        - !Ref HeartRateSQSQueue
 
   UserDataTable:
     Type: AWS::DynamoDB::Table
@@ -206,6 +272,10 @@ Resources:
 
   SNSTopicPosition:
     Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !GetAtt PositionSQSQueue.Arn
+          Protocol: sqs
 
   SNSTopicFall:
     Type: AWS::SNS::Topic
@@ -215,6 +285,14 @@ Resources:
 
   SNSTopicNotify:
     Type: AWS::SNS::Topic
+
+  HeartRateSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn: !Ref SNSTopicHeartRate
+      Endpoint: !GetAtt HeartRateSQSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
 
   ApiBucket:
     Type: AWS::S3::Bucket
@@ -226,9 +304,9 @@ Resources:
 
 
 Outputs:
-  SQSQueue:
-    Description: "SQS events queue URL"
-    Value: !Ref SQSQueue
+  IngestionSQSQueue:
+    Description: "SQS events ingestion queue URL"
+    Value: !Ref IngestionSQSQueue
   UserDataTable:
     Description: "DynamoDB UserDataTable name"
     Value: !Ref UserDataTable

@@ -5,20 +5,19 @@ ALPHA = 3/2
 
 
 def handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    sns = None
+    batch_size = len(event['Records'])
     for record in event['Records']:
-        attributes = record["Sns"]["MessageAttributes"]
+        attributes = record["messageAttributes"]
         #print(attributes)
+        sensor_id = attributes["sensor_id"]["stringValue"]
+        timestamp = attributes["timestamp"]["stringValue"]
+        latitude = attributes["latitude"]["stringValue"]
+        longitude = attributes["longitude"]["stringValue"]
+        heart_rate = int(attributes["heart_rate"]["stringValue"])
 
-        sensor_id = attributes["sensor_id"]["Value"]
-        timestamp = attributes["timestamp"]["Value"]
-        latitude = attributes["latitude"]["Value"]
-        longitude = attributes["longitude"]["Value"]
-        heart_rate = int(attributes["heart_rate"]["Value"])
-
-        # Get the service resource.
-        dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table(os.environ['USER_DATA_TABLE'])
-
         response = table.get_item(
             Key={
                 'sensor_id': sensor_id
@@ -31,11 +30,11 @@ def handler(event, context):
         var_hrate = int(item['var_hrate'])
 
         if not avg_hrate - ALPHA * var_hrate <= heart_rate <= avg_hrate + ALPHA * var_hrate:
-            # Create an SNS client
-            sns = boto3.client('sns')
-
+            if sns is None:
+                # Create an SNS client
+                sns = boto3.client('sns')
             # Publish a simple message to the specified SNS topic
-            response = sns.publish(
+            sns.publish(
                 TopicArn=os.environ['SNS_TOPIC_NOTIFY'],
                 Message='Attenzione: anomalia cardiaca rilevata',
                 MessageAttributes={
@@ -65,9 +64,6 @@ def handler(event, context):
                     }
                 }
             )
-            # Print out the response
-            print(response)
         else:
-            print("JOB_ID {}, RequestId: {}"
-                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
-
+            print("JOB_ID {}, RequestId: {}, BatchSize: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id, batch_size))

@@ -4,16 +4,18 @@ import math
 
 
 def handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    sns = None
+    batch_size = len(event['Records'])
     for record in event['Records']:
-        attributes = record["Sns"]["MessageAttributes"]
-        sensor_id = attributes["sensor_id"]["Value"]
-        timestamp = attributes["timestamp"]["Value"]
-        latitude = float(attributes["latitude"]["Value"])
-        longitude = float(attributes["longitude"]["Value"])
-        heart_rate = int(attributes["heart_rate"]["Value"])
+        attributes = record["messageAttributes"]
+        sensor_id = attributes["sensor_id"]["stringValue"]
+        timestamp = attributes["timestamp"]["stringValue"]
+        latitude = float(attributes["latitude"]["stringValue"])
+        longitude = float(attributes["longitude"]["stringValue"])
+        heart_rate = int(attributes["heart_rate"]["stringValue"])
 
         # retrieve user safety zone info
-        dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table(os.environ['USER_DATA_TABLE'])
 
         response = table.get_item(
@@ -31,11 +33,12 @@ def handler(event, context):
         # check if current position is inside the safety zone
         if distance(safety_lat, safety_long, latitude, longitude) > safety_radius:
             #print("WARNING: Outside the safety zone!")
-            # Create an SNS client
-            sns = boto3.client('sns')
+            if sns is None:
+                # Create an SNS client
+                sns = boto3.client('sns')
 
             # Publish a simple message to the specified SNS topic
-            response = sns.publish(
+            sns.publish(
                 TopicArn=os.environ['SNS_TOPIC_NOTIFY'],
                 Message='Attenzione: fuoriuscita dalla zona di sicurezza',
                 MessageAttributes={
@@ -65,12 +68,10 @@ def handler(event, context):
                     }
                 }
             )
-            # Print out the response
-            print(response)
         else:
             #print("Dentro la safety zone")
-            print("JOB_ID {}, RequestId: {}"
-                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+            print("JOB_ID {}, RequestId: {}, BatchSize: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id, batch_size))
 
 
 # da posizione in gradi decimali a gradi, primi, sec (41.85577° = 41 ° 51 ' 20 ")
