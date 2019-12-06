@@ -1,9 +1,7 @@
 @timestamp,@message
-2019-11-19 16:53:17.256,"REPORT RequestId: 8650bd0c-2591-4114-a758-8afd73a00538	Duration: 1748.52 ms	Billed Duration: 1800 ms	Memory Size: 128 MB	Max Memory Used: 75 MB	Init Duration: 192.08 ms	
-"
 2019-11-19 16:53:22.913,"JOB_ID 3521574182401-4912934, RequestId: f34eee68-fc6d-428e-8a72-2b7f246a0ce3
 "
-2019-11-19 16:53:22.915,"REPORT RequestId: f34eee68-fc6d-428e-8a72-2b7f246a0ce3	Duration: 257.12 ms	Billed Duration: 300 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
+2019-11-19 16:53:22.915,"REPORT RequestId: f34eee68-fc6d-428e-8a72-2b7f246a0ce3	Duration: 1635.53 ms	Billed Duration: 1700 ms	Memory Size: 128 MB	Max Memory Used: 76 MB
 "
 2019-11-19 16:53:27.916,"REPORT RequestId: 822057c4-0052-4229-b7f4-662378224a4e	Duration: 512.10 ms	Billed Duration: 600 ms	Memory Size: 128 MB	Max Memory Used: 76 MB	
 "
