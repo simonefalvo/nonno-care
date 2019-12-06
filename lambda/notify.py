@@ -5,18 +5,21 @@ from botocore.exceptions import ClientError
 
 
 def handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    ses = boto3.client('ses', region_name=os.environ['AWS_REGION'])
+    batch_size = len(event['Records'])
     for record in event['Records']:
-        message = record["Sns"]["Message"]
-        attributes = record["Sns"]["MessageAttributes"]
-        sensor_id = attributes["sensor_id"]["Value"]
-        timestamp = attributes["timestamp"]["Value"]
-        accident_type = attributes["type"]["Value"]
-        latitude = attributes["latitude"]["Value"]
-        longitude = attributes["longitude"]["Value"]
-        heart_rate = int(attributes["heart_rate"]["Value"])
+        message = record["body"]
+        attributes = record["messageAttributes"]
+        sensor_id = attributes["sensor_id"]["stringValue"]
+        timestamp = attributes["timestamp"]["stringValue"]
+        accident_type = attributes["type"]["stringValue"]
+        latitude = attributes["latitude"]["stringValue"]
+        longitude = attributes["longitude"]["stringValue"]
+        heart_rate = int(attributes["heart_rate"]["stringValue"])
 
         # store accident data
-        table = boto3.resource('dynamodb').Table(os.environ['ACCIDENT_DATA_TABLE'])
+        table = dynamodb.Table(os.environ['ACCIDENT_DATA_TABLE'])
         table.put_item(
             Item={
                 'sensor_id': sensor_id,
@@ -28,16 +31,15 @@ def handler(event, context):
         )
 
         # send email to subscribers
-        email = get_subscribers(sensor_id)
+        email = get_subscribers(dynamodb, sensor_id)
         #print("Email: ", email)
-        send_email(email, message)
+        send_email(ses, email, message)
 
-        print("JOB_ID {}, RequestId: {}"
-              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+        print("JOB_ID {}, RequestId: {}, BatchSize: {}"
+              .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id, batch_size))
 
 
-def get_subscribers(sensor_id):
-    dynamodb = boto3.resource('dynamodb')
+def get_subscribers(dynamodb, sensor_id):
     table = dynamodb.Table(os.environ['USER_DATA_TABLE'])
 
     response = table.get_item(
@@ -48,9 +50,8 @@ def get_subscribers(sensor_id):
     return response['Item']['email']
 
 
-def send_email(recipient, message):
+def send_email(ses_client, recipient, message):
     sender = "Nonno Care <nonnocare.notify@gmail.com>"
-    aws_region = "eu-central-1"
     subject = "nonno ALERT"
 
     # The email body for recipients with non-HTML email clients.
@@ -72,13 +73,10 @@ def send_email(recipient, message):
     # The character encoding for the email.
     charset = "UTF-8"
 
-    # Create a new SES resource and specify a region.
-    client = boto3.client('ses', region_name=aws_region)
-
     # Try to send the email.
     try:
         # Provide the contents of the email.
-        response = client.send_email(
+        response = ses_client.send_email(
             Destination={
                 'ToAddresses': [
                     recipient,

@@ -51,7 +51,6 @@ Resources:
           SNS_TOPIC_HEARTRATE: !Ref SNSTopicHeartRate
           SNS_TOPIC_POSITION: !Ref SNSTopicPosition
           SNS_TOPIC_FALL_DETECTION: !Ref SNSTopicFall
-          SNS_TOPIC_SOS: !Ref SNSTopicSOS
           SNS_TOPIC_NOTIFY: !Ref SNSTopicNotify
           TTL: 604800  # seconds in a week
       Policies:
@@ -80,7 +79,7 @@ Resources:
         - AmazonSNSFullAccess
       Timeout: 8
       Events:
-        freqEvent:
+        positionEvent:
           Type: SQS
           Properties:
             Queue: !GetAtt PositionSQSQueue.Arn
@@ -101,7 +100,7 @@ Resources:
         - AmazonSNSFullAccess
       Timeout: 8
       Events:
-        checkHeartRatefreqEvent:
+        heartRateEvent:
           Type: SQS
           Properties:
             Queue: !GetAtt HeartRateSQSQueue.Arn
@@ -123,12 +122,13 @@ Resources:
       Policies:
         - AmazonSNSFullAccess
         - AmazonSageMakerFullAccess
+      Timeout: 8
       Events:
-        freqEvent:
-          Type: SNS
+        fallEvent:
+          Type: SQS
           Properties:
-            Topic:
-              Ref: SNSTopicFall
+            Queue: !GetAtt FallSQSQueue.Arn
+            BatchSize: 10
 
   notify:
     Type: AWS::Serverless::Function
@@ -145,11 +145,11 @@ Resources:
         - AmazonSESFullAccess
       Timeout: 15
       Events:
-        freqEvent:
-          Type: SNS
+        notifyEvent:
+          Type: SQS
           Properties:
-            Topic:
-              Ref: SNSTopicNotify
+            Queue: !GetAtt NotifySQSQueue.Arn
+            BatchSize: 10
 
   IngestionSQSQueue:
     Type: AWS::SQS::Queue
@@ -179,7 +179,51 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       ReceiveMessageWaitTimeSeconds: 20  # enable long polling
-      VisibilityTimeout: 50
+      VisibilityTimeout: 90
+
+  SNSTopicHeartRate:
+    Type: AWS::SNS::Topic
+
+  SNSTopicPosition:
+    Type: AWS::SNS::Topic
+
+  SNSTopicFall:
+    Type: AWS::SNS::Topic
+
+  SNSTopicNotify:
+    Type: AWS::SNS::Topic
+
+  PositionSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt PositionSQSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref SNSTopicPosition
+
+  HeartRateSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt HeartRateSQSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref SNSTopicHeartRate
+
+  FallSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt FallSQSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref SNSTopicFall
+
+  NotifySubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt NotifySQSQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref SNSTopicNotify
 
   PositionSendMessagePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -220,6 +264,46 @@ Resources:
                   - !Ref SNSTopicHeartRate
       Queues:
         - !Ref HeartRateSQSQueue
+
+  FallSendMessagePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: FallSendMessagePolicy
+        Statement:
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: '*'
+            Action: sqs:SendMessage
+            Resource:
+              - !GetAtt FallSQSQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  - !Ref SNSTopicFall
+      Queues:
+        - !Ref FallSQSQueue
+
+  NotifySendMessagePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: NotifySendMessagePolicy
+        Statement:
+          - Sid: Allow-SNS-SendMessage
+            Effect: Allow
+            Principal: '*'
+            Action: sqs:SendMessage
+            Resource:
+              - !GetAtt NotifySQSQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  - !Ref SNSTopicNotify
+      Queues:
+        - !Ref NotifySQSQueue
 
   UserDataTable:
     Type: AWS::DynamoDB::Table
@@ -266,33 +350,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-
-  SNSTopicHeartRate:
-    Type: AWS::SNS::Topic
-
-  SNSTopicPosition:
-    Type: AWS::SNS::Topic
-    Properties:
-      Subscription:
-        - Endpoint: !GetAtt PositionSQSQueue.Arn
-          Protocol: sqs
-
-  SNSTopicFall:
-    Type: AWS::SNS::Topic
-
-  SNSTopicSOS:
-    Type: AWS::SNS::Topic
-
-  SNSTopicNotify:
-    Type: AWS::SNS::Topic
-
-  HeartRateSubscription:
-    Type: 'AWS::SNS::Subscription'
-    Properties:
-      TopicArn: !Ref SNSTopicHeartRate
-      Endpoint: !GetAtt HeartRateSQSQueue.Arn
-      Protocol: sqs
-      RawMessageDelivery: 'true'
 
   ApiBucket:
     Type: AWS::S3::Bucket

@@ -24,14 +24,16 @@ z_gir_mean = -1.55567
 
 
 def handler(event, context):
+    sns = None
+    batch_size = len(event['Records'])
     for record in event['Records']:
-        attributes = record["Sns"]["MessageAttributes"]
-        sensor_id = attributes["sensor_id"]["Value"]
-        timestamp = attributes["timestamp"]["Value"]
-        latitude = attributes["latitude"]["Value"]
-        longitude = attributes["longitude"]["Value"]
-        heart_rate = attributes["heart_rate"]["Value"]
-        fall_data = attributes["fall_data"]["Value"]
+        attributes = record["messageAttributes"]
+        sensor_id = attributes["sensor_id"]["stringValue"]
+        timestamp = attributes["timestamp"]["stringValue"]
+        latitude = attributes["latitude"]["stringValue"]
+        longitude = attributes["longitude"]["stringValue"]
+        heart_rate = attributes["heart_rate"]["stringValue"]
+        fall_data = attributes["fall_data"]["stringValue"]
 
         data_vector = read_message(fall_data)
 
@@ -86,14 +88,15 @@ def handler(event, context):
         #print(result)
 
         if result == 0:
-            print("JOB_ID {}, RequestId: {}"
-                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id))
+            print("JOB_ID {}, RequestId: {}, BatchSize: {}"
+                  .format(sensor_id + timestamp.replace('.', '-'), context.aws_request_id, batch_size))
         else:
-            # Create an SNS client
-            sns = boto3.client('sns')
+            if sns is None:
+                # Create an SNS client
+                sns = boto3.client('sns')
 
             # Publish a simple message to the specified SNS topic
-            response = sns.publish(
+            sns.publish(
                 TopicArn=os.environ['SNS_TOPIC_NOTIFY'],
                 Message='Attenzione: caduta rilevata',
                 MessageAttributes={
@@ -123,8 +126,6 @@ def handler(event, context):
                     }
                 }
             )
-            # Print out the response
-            print(response)
 
 
 def read_message(message):
@@ -151,9 +152,6 @@ def remove_outlier_and_fix_missing(data, max_value, min_value):
     np.warnings.filterwarnings('ignore')
     data[data > max_value] = np.NaN
     data[data < min_value] = np.NaN
-
-    # TODO: rimuovere NAN e sostituirli con media mobile
     # data = data.fillna(pd.rolling_mean(data, 6, min_periods=1))
-
     data = data[~np.isnan(data)]
     return data
