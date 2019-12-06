@@ -3,6 +3,8 @@ from time import sleep
 from sagemaker.amazon.amazon_estimator import get_image_uri
 from sagemaker.predictor import csv_serializer
 import sagemaker_role
+import sys
+
 import pandas as pd
 import boto3
 import sagemaker
@@ -14,10 +16,8 @@ def write_to_s3(filename, bucket, key):
         return boto3.Session().resource('s3').Bucket(bucket).Object(key).upload_fileobj(f)
 
 
-def upload_data():
+def upload_data(bucket_name):
     # Upload Data to S3
-    # TODO: passa nome bucket come parametro
-    bucket_name = 'sagemaker-eu-central-1-19111535'
 
     # posizione dati in s3
     training_file_key = 'model_data/fall_train.csv'
@@ -48,21 +48,28 @@ def create_endpoint(estimator):
 
 def evaluate_model(predictor, test_features, test_labels):
     # calcola gli errori del modello
-    rate_fall = 0
-    rate_no_fall = 0
+    true_positive = 0
+    true_negative = 0
+    false_positive = 0
+    false_negative = 0
+
     for i in range(1, len(test_features)):
         pred = predictor.predict([test_features[i]])
         pred = round(float(pred))
-        if pred == test_labels[i]:
-            if pred == 0:
-                rate_no_fall = rate_no_fall + 1
-            else:
-                rate_fall = rate_fall + 1
 
-    print(rate_fall)  # 48
-    print(rate_no_fall)  # 137
-    print(rate_fall + rate_no_fall)  # 185
-    print(len(test_features))  # 187
+        if pred == 0 and test_labels[i] == 0:
+            true_negative = true_negative + 1
+        if pred == 0 and test_labels[i] == 1:
+            false_negative = false_negative + 1
+        if pred == 1 and test_labels[i] == 1:
+            true_positive = true_positive + 1
+        if pred == 1 and test_labels[i] == 0:
+            false_positive = false_positive + 1
+
+    print(true_positive)  # 48
+    print(true_negative)  # 137
+    print(false_positive)  # 0
+    print(false_negative)  # 1
 
 
 def delete_endpoint():
@@ -70,9 +77,7 @@ def delete_endpoint():
     client.delete_endpoint(EndpointName='xgboost-fall-v1')
 
 
-def train_model():
-
-    s3_model_output_location, s3_training_file_location = upload_data()
+def train_model(s3_model_output_location, s3_training_file_location):
 
     # crea i ruoli necessari per la creazione di endpoint e per l'uso di sagemaker
     role = sagemaker_role.create_role_sagemaker()
@@ -117,10 +122,16 @@ def train_model():
 
 def main():
 
-    upload_data()
-    estimator = train_model()
+    if len(sys.argv) < 2:
+        print("Usage: python3 train_python.py <name of bucket>")
+        exit()
 
-    # # optionaly
+    bucket_name = sys.argv[1]
+    s3_model_output_location, s3_training_file_location = upload_data(bucket_name)
+
+    estimator = train_model(s3_model_output_location, s3_training_file_location)
+
+    # optionaly
     # predictor = create_endpoint(estimator)
     #
     # test = pd.read_csv('./fall_test.csv', names=list(range(37)), index_col=False)
@@ -131,5 +142,6 @@ def main():
     # delete_endpoint()
 
 
+# 'sagemaker-eu-central-1-19111535'
 if __name__ == '__main__':
     main()
