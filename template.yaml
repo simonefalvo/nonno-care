@@ -143,7 +143,7 @@ Resources:
       Policies:
         - AmazonDynamoDBFullAccess
         - AmazonSESFullAccess
-      Timeout: 15
+      Timeout: 150
       Events:
         notifyEvent:
           Type: SQS
@@ -179,7 +179,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       ReceiveMessageWaitTimeSeconds: 20  # enable long polling
-      VisibilityTimeout: 90
+      VisibilityTimeout: 900
 
   SNSTopicHeartRate:
     Type: AWS::SNS::Topic
