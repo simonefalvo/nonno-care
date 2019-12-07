@@ -1,0 +1,10 @@
+{
+    "operation": "accidents",
+    "table": "accidents",
+    "payload": {
+        "ExpressionAttributeValues": {
+            ":id": "4"
+        },
+        "KeyConditionExpression": "sensor_id = :id"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "operation": "history",
+    "table": "sensors",
+    "payload": {
+        "ExpressionAttributeValues": {
+            ":id": "4"
+        },
+        "KeyConditionExpression": "sensor_id = :id"
+    }
+}
