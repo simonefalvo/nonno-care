@@ -52,7 +52,8 @@ class UserThread(Thread):
         time.sleep(start_delay)
 
         # register new user
-        user = User(self.sensor_id, "Pumero", "nonnocare.notify@gmail.com")
+        user = User(self.sensor_id, "test-user_{}".format(self.sensor_id),
+                    "nonnocare.notify@gmail.com")
         register_user(user, self.table)
 
         periodic_event_gen = EventGenerator(user)

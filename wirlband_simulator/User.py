@@ -102,7 +102,7 @@ class User:
 
 
 if __name__ == '__main__':
-    user = User(1, "PUMA", "smvfal@gmail.com")
+    user = User(1, "test", "nonnocare.notify@gmail.com")
     for i in range(10):
         user.next_position(120)
         print("Heart rate:", user.current_hrate())
