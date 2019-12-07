@@ -1,14 +1,24 @@
 import random
+import configparser
 import simulator_position as pos_gen
 
 
 class User:
 
-    AVG_HRATE = 75      # average heart rate
-    VAR_HRATE = 15      # heart rate variance
-    AVG_SPEED = 0.0005  # average speed [km/s]
-    VAR_SPEED = 0.0001  # average speed [km/s]
-    SAFETY_PROB = 0.7
+    #AVG_HRATE = 75      # average heart rate
+    #VAR_HRATE = 15      # heart rate variance
+    #AVG_SPEED = 0.0005  # average speed [km/s]
+    #VAR_SPEED = 0.0001  # average speed [km/s]
+    #SAFETY_PROB = 0.7
+
+    config = configparser.ConfigParser()
+    config.read('./config.ini')
+
+    AVG_HRATE = config.getint('USER', 'AVG_HRATE')
+    VAR_HRATE = config.getint('USER', 'VAR_HRATE')
+    AVG_SPEED = config.getfloat('USER', 'AVG_SPEED')
+    VAR_SPEED = config.getfloat('USER', 'VAR_SPEED')
+    SAFETY_PROB = config.getfloat('USER', 'SAFETY_PROB')
 
     def __init__(self, sensor_id, name, email):
         # Generate user data

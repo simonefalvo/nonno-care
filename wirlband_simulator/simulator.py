@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import configparser
 from threading import Thread
 
 from User import User
@@ -14,16 +15,6 @@ import aws.dynamodb as dynamodb
 import aws.sqs as sqs
 
 STACK_NAME = "nonno-stack"
-
-SAMPLE_PERIOD = 10 * 60  # Sample period
-AVG_FALL_PERIOD = 1 * 30 * 24 * 60 * 60  # seconds (once a month)
-AVG_ACTIVITY_PERIOD = 3/2 * 1 * 60 * 60  # seconds (16 events in a 24 hours)
-AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
-# AVG_FALL_PERIOD = 120  # seconds
-# AVG_SOS_PERIOD = 120  # seconds
-# AVG_ACTIVITY_PERIOD = 120  # seconds
-
-K = 1/4  # time compression
 
 
 class UserThread(Thread):
@@ -103,4 +94,20 @@ def main():
 
 
 if __name__ == '__main__':
+
+    config = configparser.ConfigParser()
+    config.read('./config.ini')
+
+    #SAMPLE_PERIOD = 10 * 60  # Sample period
+    #AVG_FALL_PERIOD = 1 * 30 * 24 * 60 * 60  # seconds (once a month)
+    #AVG_ACTIVITY_PERIOD = 3 / 2 * 1 * 60 * 60  # seconds (16 events in a 24 hours)
+    #AVG_SOS_PERIOD = 1 * 15 * 24 * 3600  # seconds (twice a month)
+    #K = 1 / 4  # time compression
+
+    K = config.getfloat('SIMULATOR', 'K')    # time compression factor
+    SAMPLE_PERIOD = config.getint('EVENTS', 'SAMPLE_PERIOD')
+    AVG_FALL_PERIOD = config.getint('EVENTS', 'AVG_FALL_PERIOD')
+    AVG_ACTIVITY_PERIOD = config.getint('EVENTS', 'AVG_ACTIVITY_PERIOD')
+    AVG_SOS_PERIOD = config.getint('EVENTS', 'AVG_SOS_PERIOD')
+
     main()
