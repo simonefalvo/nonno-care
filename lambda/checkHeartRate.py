@@ -15,7 +15,7 @@ def handler(event, context):
         timestamp = attributes["timestamp"]["stringValue"]
         latitude = attributes["latitude"]["stringValue"]
         longitude = attributes["longitude"]["stringValue"]
-        heart_rate = int(attributes["heart_rate"]["stringValue"])
+        heart_rate = attributes["heart_rate"]["stringValue"]
 
         table = dynamodb.Table(os.environ['USER_DATA_TABLE'])
         response = table.get_item(
@@ -29,7 +29,7 @@ def handler(event, context):
         avg_hrate = int(item['avg_hrate'])
         var_hrate = int(item['var_hrate'])
 
-        if not avg_hrate - ALPHA * var_hrate <= heart_rate <= avg_hrate + ALPHA * var_hrate:
+        if not avg_hrate - ALPHA * var_hrate <= int(heart_rate) <= avg_hrate + ALPHA * var_hrate:
             if sns is None:
                 # Create an SNS client
                 sns = boto3.client('sns')
@@ -60,7 +60,7 @@ def handler(event, context):
                     },
                     'heart_rate': {
                         'DataType': 'Number',
-                        'StringValue': str(heart_rate)
+                        'StringValue': heart_rate
                     }
                 }
             )

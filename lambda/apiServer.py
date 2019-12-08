@@ -13,7 +13,7 @@ def handler(event, context):
     # print("Received event: " + json.dumps(event, indent=2))
 
     event_body = json.loads(event['body'])
-    print(event_body)
+    # print(event_body)
     operation = event_body['operation']
 
     if 'table' in event_body:
@@ -38,7 +38,7 @@ def handler(event, context):
         response_body = json.dumps({
                 "message": operations[operation](event_body['payload'])
             })
-        print(response_body)
+        # print(response_body)
     else:
         status_code = 400
         response_body = json.dumps({

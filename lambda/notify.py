@@ -16,7 +16,7 @@ def handler(event, context):
         accident_type = attributes["type"]["stringValue"]
         latitude = attributes["latitude"]["stringValue"]
         longitude = attributes["longitude"]["stringValue"]
-        heart_rate = int(attributes["heart_rate"]["stringValue"])
+        heart_rate = attributes["heart_rate"]["stringValue"]
 
         # store accident data
         table = dynamodb.Table(os.environ['ACCIDENT_DATA_TABLE'])
@@ -33,8 +33,7 @@ def handler(event, context):
         # send email to subscribers
         email = get_subscribers(dynamodb, sensor_id)
         #print("Email: ", email)
-        position = "Latitudine:{}, Longitudine:{}"\
-            .format(latitude, longitude)
+        position = "Latitudine:{}, Longitudine:{}".format(latitude, longitude)
         send_email(ses, email, message, position)
 
         print("JOB_ID {}, RequestId: {}, BatchSize: {}"
