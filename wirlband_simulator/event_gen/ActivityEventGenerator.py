@@ -2,7 +2,6 @@ import os
 import random
 
 from event_gen.EventGenerator import EventGenerator
-from User import User
 
 
 class ActivityEventGenerator(EventGenerator):
@@ -57,10 +56,3 @@ class ActivityEventGenerator(EventGenerator):
 
     def description(self):
         return self.activity_file
-
-
-if __name__ == '__main__':
-    sample_user = User(1, "test_user", "test@email.com")
-    eg = ActivityEventGenerator(sample_user, "./fall_file")
-    print(eg.next())
-    print("file name: {}".format(eg.activity_file))

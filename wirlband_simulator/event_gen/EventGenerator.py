@@ -1,7 +1,5 @@
 import time
 
-from User import User
-
 
 class EventGenerator:
 
@@ -40,9 +38,3 @@ class EventGenerator:
 
     def next(self):
         return self.build_event()
-
-
-if __name__ == '__main__':
-    test_user = User(1, "test_user", "test@email.com")
-    eg = EventGenerator(test_user)
-    print(eg.next())

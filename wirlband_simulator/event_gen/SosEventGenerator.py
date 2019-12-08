@@ -1,5 +1,4 @@
 from event_gen.EventGenerator import EventGenerator
-from User import User
 
 
 class SosEventGenerator(EventGenerator):
@@ -14,9 +13,3 @@ class SosEventGenerator(EventGenerator):
 
     def description(self):
         return "SOS event"
-
-
-if __name__ == '__main__':
-    sample_user = User(1, "test_user", "test@email.com")
-    eg = SosEventGenerator(sample_user)
-    print(eg.next())

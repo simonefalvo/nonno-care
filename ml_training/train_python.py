@@ -5,10 +5,8 @@ from sagemaker.predictor import csv_serializer
 import sagemaker_role
 import sys
 
-import pandas as pd
 import boto3
 import sagemaker
-import numpy as np
 
 
 def write_to_s3(filename, bucket, key):
