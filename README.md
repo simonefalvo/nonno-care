@@ -33,7 +33,7 @@ Before starting the simulator, verify an email address to receiving notification
 ```bash
 $ bash verify_email.sh receiver@example.com
 ```
-and by clicking on the link you will receive, then update the *EMAIL* 
+and by clicking on the link you will receive, then update the *EMAIL* field in
 the [config.ini](wirlband_simulator/config.ini) configuration file.
 
 Finally start the simulator, for example, to simulate 2 sample users:
