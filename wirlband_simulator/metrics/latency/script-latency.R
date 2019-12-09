@@ -1,16 +1,31 @@
 
 library("dplyr")
 
+subtract <- function(x){
+  return(x[1]-12)
+}
 
 list_job_id <- function(job_df){
   
   start_pos <- 7
-  end_pos <-gregexpr(pattern = ',', job_df$X.message) 
-  
+  end_pos <-gregexpr(pattern = ', RequestId:', job_df$X.message) 
   # elenco dei job_id
   jobs_id <- substr(job_df$X.message, start_pos, end_pos)
-  
+
   return(jobs_id)
+}
+get_request_id <- function(request_row){
+  start_pos <- 12
+  end_pos <- gregexpr(pattern = ', BatchSize:', request_row) 
+  request_id <- substr(request_row, start_pos, end_pos[[1]] - 1)
+  return(request_id)
+}
+
+get_size <- function(request_row){
+  
+  start_pos <- gregexpr(pattern = ', BatchSize:', request_row) 
+  size <- substr(request_row, start_pos[[1]]+12, nchar(request))
+  return(size)
 }
 
 list_request_id <- function(job_df){
@@ -57,7 +72,9 @@ generate_table <- function(file_name){
   for(request in reqs_id){
     
     # seleziono la riga di interesse
-    row <- report_df[grepl(request, report_df[["X.message"]]), ]
+    request_id <- get_request_id(request)
+    batch_size <- get_size(request)
+    row <- report_df[grepl(request_id, report_df[["X.message"]]), ]
     
     # TODO: se piu di una riga errore
     if(nrow(row) > 1){
@@ -72,7 +89,7 @@ generate_table <- function(file_name){
     start = gregexpr(pattern = '\tDuration:', row)
     end = gregexpr(pattern = 'ms\tBilled Duration', row)
     duration = substr(row, start[[1]][1] + 11, end[[1]][1] -2)
-    
+    duration <- as.double(as.character(duration))/ as.double(as.character(batch_size))
     
     # trovo la riga della matrice di risultato associata a cui dare la durata
     
@@ -115,19 +132,14 @@ save_in_one_file <-function(all_data, file_out){
 
 
 
-file_name = "lat_500.csv"
+file_name = "lat_2000.csv"
 file_in = paste0("./data/", file_name)
 file_out = paste0("./out/", file_name)
 
-t1 <- generate_table("./data/lat_500_notify.csv")
-t2 <- generate_table("./data/lat_500_checkFall.csv")
-t3 <- generate_table("./data/lat_500_checkHeartRate.csv")
-t4 <- generate_table("./data/lat_500_checkPosition.csv")
-t5 <- generate_table("./data/lat_500_eventProcessor.csv")
+t1 <- generate_table("./data/lat_2000_eventProcessor.csv")
 
 
-#all_data <- t1
-all_data <- rbind(t1, t2,t4, t5)
+all_data <- t1
 all_data <- all_data[,-3] #rimuovo la colonna dei request-id non mi serve piu 
 
 save_in_one_file(all_data, file_out)
