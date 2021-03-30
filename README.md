@@ -29,11 +29,11 @@ $ bash deploy.sh $REGION $BUCKET
 ```
 
 ## Running Example
-Before starting the simulator, verify an email address to receiving notifications:
+Before starting the simulator, verify an email address in order to receive notifications:
 ```bash
 $ bash verify_email.sh receiver@example.com
 ```
-and by clicking on the link you will receive, then update the *EMAIL* field in
+and by clicking on the link you receive, then update the *EMAIL* field in
 the [config.ini](wirlband_simulator/config.ini) configuration file.
 
 Finally start the simulator, for example, to simulate 2 sample users:
